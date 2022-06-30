@@ -1,0 +1,5 @@
+Build/.vs/
+Build/x64/
+Source/Engine/x64/
+Source/Game/x64/
+Library/Debug/

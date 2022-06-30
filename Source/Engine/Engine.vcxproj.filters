@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Codes">
+      <UniqueIdentifier>{0cee8e3a-855a-4873-914f-3ab4956d4854}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Camera">
+      <UniqueIdentifier>{e8b97575-d40a-42a6-b609-798a2cd21542}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Graphics">
+      <UniqueIdentifier>{c6c08252-5da4-4c41-a268-5236d4d4009c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Game">
+      <UniqueIdentifier>{5767f890-cd7d-44cc-8cf4-8046092ca4c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Window">
+      <UniqueIdentifier>{b3ebeb99-e993-479b-84ef-f09caf43e062}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Input">
+      <UniqueIdentifier>{865e2591-59be-435e-be84-d174d719410c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Camera\Camera.cpp">
+      <Filter>Source Codes\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Codes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Game.cpp">
+      <Filter>Source Codes\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Window\MainWindow.cpp">
+      <Filter>Source Codes\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\Input.cpp">
+      <Filter>Source Codes\Input</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>Source Codes</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera\Camera.h">
+      <Filter>Source Codes\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>Source Codes</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Source Codes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Game.h">
+      <Filter>Source Codes\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\MainWindow.h">
+      <Filter>Source Codes\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\BaseWindow.h">
+      <Filter>Source Codes\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DataTypes.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\Input.h">
+      <Filter>Source Codes\Input</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="directx.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
