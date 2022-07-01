@@ -40,13 +40,22 @@
 #endif // ! WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
+
+#include <shellapi.h>
+
+#include <wrl.h>
 #include <wrl/client.h>
 #include <wrl/event.h>
 
+// DirectX 12 specific headers
 #include <d3d12.h>
 #include <dxgi1_6.h>
-#include "d3dx12.h"
+#include <d3dcompiler.h>
+#include <DirectXMath.h>
 #include <directxcolors.h>
+
+// D3D12 extension library
+#include <d3dx12.h>
 
 #define D3D12_GPU_VIRTUAL_ADDRESS_NULL      ((D3D12_GPU_VIRTUAL_ADDRESS)0)
 #define D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN   ((D3D12_GPU_VIRTUAL_ADDRESS)-1)
@@ -55,6 +64,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
+// STL Headers
 #include <cassert>
 #include <cstdarg>
 #include <cstdint>
@@ -77,16 +87,3 @@ constexpr LPCWSTR LPSZ_ENGINE_TITLE = L"Pipeline Renderer";
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
-
-namespace pr
-{
-    /*S+S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S
-      Class:    MouseRelativeMovement
-      Summary:  Data structure that stores mouse relative movement data
-    S---S---S---S---S---S---S---S---S---S---S---S---S---S---S---S---S-S*/
-    struct MouseRelativeMovement
-    {
-        LONG X;
-        LONG Y;
-    };
-}

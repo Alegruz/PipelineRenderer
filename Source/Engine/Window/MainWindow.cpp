@@ -123,8 +123,8 @@ namespace pr
                     RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawData.get());
                     if (raw->header.dwType == RIM_TYPEMOUSE)
                     {
-                        m_mouseRelativeMovement.X = raw->data.mouse.lLastX;
-                        m_mouseRelativeMovement.Y = raw->data.mouse.lLastY;
+                        m_MouseRelativeMovement.X = raw->data.mouse.lLastX;
+                        m_MouseRelativeMovement.Y = raw->data.mouse.lLastY;
 
                         RECT rc;
                         RECT rc2;
@@ -154,10 +154,29 @@ namespace pr
             return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
         }
         case WM_KEYDOWN:
+        {
+            if (!m_KeyboardInput.IsButtonPressed(static_cast<BYTE>(wParam)))
+            {
+                constexpr const size_t KEY_NAME_SIZE = 32;
+                WCHAR szKeyName[KEY_NAME_SIZE] = { L'\0', };
+                GetKeyNameText(static_cast<LONG>(lParam), szKeyName, KEY_NAME_SIZE);
+                OutputDebugString(L"Button ");
+                OutputDebugString(szKeyName);
+                OutputDebugString(L" Pressed!\n");
+            }
+        }
             m_KeyboardInput.SetButton(static_cast<BYTE>(wParam));
             break;
         case WM_KEYUP:
             m_KeyboardInput.ClearButton(static_cast<BYTE>(wParam));
+            {
+                constexpr const size_t KEY_NAME_SIZE = 32;
+                WCHAR szKeyName[KEY_NAME_SIZE] = { L'\0', };
+                GetKeyNameText(static_cast<LONG>(lParam), szKeyName, KEY_NAME_SIZE);
+                OutputDebugString(L"Button ");
+                OutputDebugString(szKeyName);
+                OutputDebugString(L" Released!\n");
+            }
             break;
             // Note that this tutorial does not handle resizing (WM_SIZE) requests,
             // so we created the window without the resize border.
@@ -175,18 +194,18 @@ namespace pr
         return 0;
     }
 
-    constexpr const KeyboardInput& MainWindow::GetKeyboardInput() const noexcept
+    const KeyboardInput& MainWindow::GetKeyboardInput() const noexcept
     {
         return m_KeyboardInput;
     }
 
     const MouseRelativeMovement& MainWindow::GetMouseRelativeMovement() const
     {
-        return m_mouseRelativeMovement;
+        return m_MouseRelativeMovement;
     }
 
     void MainWindow::ResetMouseMovement()
     {
-        memset(&m_mouseRelativeMovement, 0, sizeof(MouseRelativeMovement));
+        memset(&m_MouseRelativeMovement, 0, sizeof(MouseRelativeMovement));
     }
 }

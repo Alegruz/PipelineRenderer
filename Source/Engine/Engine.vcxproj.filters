@@ -23,6 +23,9 @@
     <Filter Include="Source Codes\Input">
       <UniqueIdentifier>{865e2591-59be-435e-be84-d174d719410c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Codes\Utility">
+      <UniqueIdentifier>{9b3faf87-012b-46c5-a9e5-9a6db556ee3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp">
@@ -39,6 +42,12 @@
     </ClCompile>
     <ClCompile Include="Input\Input.cpp">
       <Filter>Source Codes\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Utility.cpp">
+      <Filter>Source Codes\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Renderer.cpp">
+      <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +77,12 @@
     </ClInclude>
     <ClInclude Include="Input\Input.h">
       <Filter>Source Codes\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Utility.h">
+      <Filter>Source Codes\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderer.h">
+      <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

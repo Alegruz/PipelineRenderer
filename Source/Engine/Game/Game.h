@@ -13,12 +13,16 @@
 
 #include "pch.h"
 
-//#include "Renderer/Renderer.h"
+#include "Graphics/Renderer.h"
 //#include "Scene/Scene.h"
-#include "Window/MainWindow.h"
+//#include "Window/MainWindow.h"
 
 namespace pr
 {
+    // Forward Declarations
+    class MainWindow;
+    //class Renderer;
+
     /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
       Class:    Game
 
@@ -45,10 +49,10 @@ namespace pr
     {
     public:
         explicit Game(_In_ PCWSTR pszGameName) noexcept;
-        Game(const Game& Other) = delete;
-        Game(Game&& Other) = delete;
-        Game& operator=(const Game& Other) = delete;
-        Game& operator=(Game&& Other) = delete;
+        Game(const Game& other) = delete;
+        Game(Game&& other) = delete;
+        Game& operator=(const Game& other) = delete;
+        Game& operator=(Game&& other) = delete;
         ~Game() = default;
 
         HRESULT Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow);
@@ -56,13 +60,14 @@ namespace pr
 
         PCWSTR GetGameName() const;
         constexpr std::unique_ptr<MainWindow>& GetWindow() noexcept;
-        //std::unique_ptr<Renderer>& GetRenderer();
+        std::unique_ptr<Renderer>& GetRenderer();
 
     private:
         PCWSTR m_pszGameName;
         std::unique_ptr<MainWindow> m_pMainWindow;
-        //std::unique_ptr<Renderer> m_renderer;
+        std::unique_ptr<Renderer> m_pRenderer;
         //std::unordered_map<std::wstring, std::unique_ptr<Scene>> m_scenes;
         PCWSTR m_pszMainSceneName;
     };
+    static_assert(sizeof(Game) == 32);
 }

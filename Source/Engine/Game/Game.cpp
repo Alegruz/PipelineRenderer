@@ -1,6 +1,9 @@
 #include "pch.h"
 
 #include "Game/Game.h"
+#include "Graphics/Renderer.h"
+#include "Utility/Utility.h"
+#include "Window/MainWindow.h"
 
 namespace pr
 {
@@ -14,10 +17,10 @@ namespace pr
 
       Modifies: [m_pszGameName, m_mainWindow, m_renderer].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    Game::Game(PCWSTR pszGameName) noexcept
+    Game::Game(_In_ PCWSTR pszGameName) noexcept
         : m_pszGameName(pszGameName)
         , m_pMainWindow(std::make_unique<MainWindow>())
-        //, m_renderer(std::make_unique<Renderer>())
+        , m_pRenderer(std::make_unique<Renderer>())
         //, m_scenes()
         , m_pszMainSceneName(nullptr)
     {
@@ -42,16 +45,10 @@ namespace pr
     HRESULT Game::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow)
     {
         HRESULT hr = m_pMainWindow->Initialize(hInstance, nCmdShow, m_pszGameName);
-        if (FAILED(hr))
-        {
-            return hr;
-        }
+        CHECK_AND_RETURN_HRESULT(hr, L"Game::Initialize >> MainWindow::Initialize");
 
-        //hr = m_renderer->Initialize(m_mainWindow->GetWindow());
-        //if (FAILED(hr))
-        //{
-        //    return hr;
-        //}
+        hr = m_pRenderer->Initialize(m_pMainWindow->GetWindow());
+        CHECK_AND_RETURN_HRESULT(hr, L"Game::Initialize >> Renderer::Initialize");
 
         return hr;
     }
@@ -92,12 +89,12 @@ namespace pr
                 QueryPerformanceFrequency(&frequency);
                 QueryPerformanceCounter(&startingTime);
 
-                //FLOAT deltaTime = static_cast<FLOAT>(elapsedMicroseconds.QuadPart) / 1000000.0f;
+                FLOAT deltaTime = static_cast<FLOAT>(elapsedMicroseconds.QuadPart) / 1000000.0f;
 
-                //m_renderer->HandleInput(m_mainWindow->GetDirections(), m_mainWindow->GetMouseRelativeMovement(), deltaTime);
+                m_pRenderer->HandleInput(m_pMainWindow->GetKeyboardInput(), m_pMainWindow->GetMouseRelativeMovement(), deltaTime);
                 m_pMainWindow->ResetMouseMovement();
-                //m_renderer->Update(deltaTime);
-                //m_renderer->Render();
+                m_pRenderer->Update(deltaTime);
+                m_pRenderer->Render();
             }
         }
 
@@ -138,8 +135,8 @@ namespace pr
       Returns:  std::unique_ptr<Renderer>&
                   The renderer
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    //std::unique_ptr<Renderer>& Game::GetRenderer()
-    //{
-    //    return m_renderer;
-    //}
+    std::unique_ptr<Renderer>& Game::GetRenderer()
+    {
+        return m_pRenderer;
+    }
 }

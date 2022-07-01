@@ -4,23 +4,41 @@
 
 namespace pr
 {
-	constexpr BOOL KeyboardInput::IsButtonPressed(BYTE Button) noexcept
-	{
-		return (m_KeyboardInput & (0x01 << (Button - 0x01)));
+	BOOL KeyboardInput::IsButtonPressed(BYTE button) const noexcept
+	{	
+		assert(VK_LBUTTON <= button && button <= VK_OEM_CLEAR);
+
+		return (m_KeyboardInput[button / 64] & (1ull << ((button - 1ull) % 64)));
 	}
 
-	constexpr void KeyboardInput::ClearButton(BYTE Button) noexcept
+	void KeyboardInput::ClearButton(BYTE button) noexcept
 	{
-		m_KeyboardInput &= ~(0x01 << (Button - 0x01));
+		m_KeyboardInput[button / 64] &= ~(1ull << ((button - 1ull) % 64));
 	}
 
-	constexpr void KeyboardInput::SetButton(BYTE Button) noexcept
+	void KeyboardInput::SetButton(BYTE button) noexcept
 	{
-		m_KeyboardInput = (0x01 << Button) | m_KeyboardInput;
+		m_KeyboardInput[button / 64] = (1ull << ((button - 1ull) % 64)) | m_KeyboardInput[button / 64];
 	}
 
-	constexpr void KeyboardInput::ToggleButton(BYTE Button) noexcept
+	void KeyboardInput::ToggleButton(BYTE button) noexcept
 	{
-		m_KeyboardInput ^= 0x01 << (Button - 0x01);
+		m_KeyboardInput[button / 64] ^= 1ull << ((button - 1ull) % 64);
+	}
+
+	void KeyboardInput::PrintKeyboardInputBinary() const noexcept
+	{
+		WCHAR szBinary[0xfe + 4] = { L'\0', };
+		szBinary[0] = L'0';
+		szBinary[1] = L'x';
+
+		for (size_t i = 2; i < 0xfe + 2; ++i)
+		{
+			szBinary[i] = L'0' + ((m_KeyboardInput[i / 64] & (1ull << ((i % 64) - 1ull))) >> ((i % 64) - 1ull));
+		}
+		szBinary[0xfe + 2] = L'\0';
+		szBinary[0xfe + 3] = L'\n';
+		OutputDebugString(szBinary);
+		OutputDebugString(L"\n");
 	}
 }

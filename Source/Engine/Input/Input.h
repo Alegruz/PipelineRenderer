@@ -4,23 +4,41 @@
 
 namespace pr
 {
+	/*S+S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S+++S
+	  Class:    MouseRelativeMovement
+	  Summary:  Data structure that stores mouse relative movement data
+	S---S---S---S---S---S---S---S---S---S---S---S---S---S---S---S---S-S*/
+	struct MouseRelativeMovement
+	{
+		explicit constexpr MouseRelativeMovement() noexcept
+			: X(0)
+			, Y(0)
+		{
+		}
+
+		LONG X;
+		LONG Y;
+	};
+
 	class KeyboardInput final
 	{
 	public:
 		explicit constexpr KeyboardInput() noexcept = default;
-		explicit constexpr KeyboardInput(const KeyboardInput& Other) noexcept = default;
-		explicit constexpr KeyboardInput(KeyboardInput&& Other) noexcept = default;
-		constexpr KeyboardInput& operator=(const KeyboardInput& Other) noexcept = default;
-		constexpr KeyboardInput& operator=(KeyboardInput&& Other) noexcept = default;
+		explicit constexpr KeyboardInput(const KeyboardInput& other) noexcept = default;
+		explicit constexpr KeyboardInput(KeyboardInput&& other) noexcept = default;
+		constexpr KeyboardInput& operator=(const KeyboardInput& other) noexcept = default;
+		constexpr KeyboardInput& operator=(KeyboardInput&& other) noexcept = default;
 		~KeyboardInput() noexcept = default;
 
-		constexpr BOOL IsButtonPressed(BYTE Button) noexcept;
+		BOOL IsButtonPressed(BYTE button) const noexcept;
 		
-		constexpr void ClearButton(BYTE Button) noexcept;
-		constexpr void SetButton(BYTE Button) noexcept;
-		constexpr void ToggleButton(BYTE Button) noexcept;
+		void ClearButton(BYTE button) noexcept;
+		void SetButton(BYTE button) noexcept;
+		void ToggleButton(BYTE button) noexcept;
+
+		void PrintKeyboardInputBinary() const noexcept;
 
 	private:
-		BYTE m_KeyboardInput = 0x00;
+		UINT64 m_KeyboardInput[4];
 	};
 }

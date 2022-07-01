@@ -10,6 +10,7 @@
 ===================================================================+*/
 
 #include "Game/Game.h"
+#include "Utility/Utility.h"
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: wWinMain
@@ -37,10 +38,13 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 #ifdef _DEBUG
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-    UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-    UNREFERENCED_PARAMETER(nCmdShow);
 
-    return 0;
+    std::unique_ptr<pr::Game> pGame = std::make_unique<pr::Game>(L"Pipeline Renderer");
+
+    HRESULT hr = pGame->Initialize(hInstance, nCmdShow);
+    CHECK_AND_RETURN_HRESULT(hr, L"Game Initialization");
+
+    return pGame->Run();
 }

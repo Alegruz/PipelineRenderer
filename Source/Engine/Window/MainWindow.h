@@ -38,7 +38,7 @@ namespace pr
     class MainWindow : public BaseWindow<MainWindow>
     {
     public:
-        MainWindow() = default;
+        explicit constexpr MainWindow() noexcept = default;
         MainWindow(const MainWindow& other) = delete;
         MainWindow(MainWindow&& other) = delete;
         MainWindow& operator=(const MainWindow& other) = delete;
@@ -49,12 +49,12 @@ namespace pr
         PCWSTR GetWindowClassName() const override;
         LRESULT HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) override;
 
-        constexpr const KeyboardInput& GetKeyboardInput() const noexcept;
+        const KeyboardInput& GetKeyboardInput() const noexcept;
         const MouseRelativeMovement& GetMouseRelativeMovement() const;
         void ResetMouseMovement();
 
     private:
         KeyboardInput m_KeyboardInput;
-        MouseRelativeMovement m_mouseRelativeMovement;
+        MouseRelativeMovement m_MouseRelativeMovement;
     };
 }

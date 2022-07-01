@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Graphics/DataTypes.h"
+#include "Input/Input.h"
 
 namespace pr
 {
@@ -37,54 +38,54 @@ namespace pr
                 ~Camera
                     Destructor.
     C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-    //class Camera
-    //{
-    //public:
-    //    Camera() = delete;
-    //    Camera(_In_ const XMVECTOR& position);
-    //    Camera(const Camera& other) = delete;
-    //    Camera(Camera&& other) = delete;
-    //    Camera& operator=(const Camera& other) = delete;
-    //    Camera& operator=(Camera&& other) = delete;
-    //    virtual ~Camera() = default;
+    class Camera
+    {
+    public:
+        Camera() = delete;
+        Camera(_In_ const XMVECTOR& position);
+        Camera(const Camera& other) = delete;
+        Camera(Camera&& other) = delete;
+        Camera& operator=(const Camera& other) = delete;
+        Camera& operator=(Camera&& other) = delete;
+        virtual ~Camera() = default;
 
-    //    const XMVECTOR& GetEye() const;
-    //    const XMVECTOR& GetAt() const;
-    //    const XMVECTOR& GetUp() const;
-    //    const XMMATRIX& GetView() const;
-    //    ComPtr<ID3D11Buffer>& GetConstantBuffer();
+        const XMVECTOR& GetEye() const;
+        const XMVECTOR& GetAt() const;
+        const XMVECTOR& GetUp() const;
+        constexpr const XMMATRIX& GetView() const noexcept;
+        //ComPtr<ID3D11Buffer>& GetConstantBuffer();
 
-    //    virtual void HandleInput(_In_ const DirectionsInput& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime);
-    //    virtual HRESULT Initialize(_In_ ID3D11Device* device, _In_ ID3D11DeviceContext* pImmediateContext);
-    //    virtual void Update(_In_ FLOAT deltaTime);
-    //protected:
-    //    static constexpr const XMVECTORF32 DEFAULT_FORWARD = { 0.0f, 0.0f, 1.0f, 0.0f };
-    //    static constexpr const XMVECTORF32 DEFAULT_RIGHT = { 1.0f, 0.0f, 0.0f, 0.0f };
-    //    static constexpr const XMVECTORF32 DEFAULT_UP = { 0.0f, 1.0f, 0.0f, 0.0f };
+        virtual void HandleInput(_In_ const KeyboardInput& Input, _In_ const MouseRelativeMovement& MouseRelativeMovement, _In_ FLOAT deltaTime);
+        //virtual HRESULT Initialize(_In_ ID3D11Device* device, _In_ ID3D11DeviceContext* pImmediateContext);
+        virtual void Update(_In_ FLOAT deltaTime);
+    protected:
+        static constexpr const XMVECTORF32 DEFAULT_FORWARD = { 0.0f, 0.0f, 1.0f, 0.0f };
+        static constexpr const XMVECTORF32 DEFAULT_RIGHT = { 1.0f, 0.0f, 0.0f, 0.0f };
+        static constexpr const XMVECTORF32 DEFAULT_UP = { 0.0f, 1.0f, 0.0f, 0.0f };
 
     //    ComPtr<ID3D11Buffer> m_cbChangeOnCameraMovement;
 
-    //    FLOAT m_yaw;
-    //    FLOAT m_pitch;
+        XMMATRIX m_Rotation;            // 80 bytes
+        XMMATRIX m_View;                // 144 bytes
 
-    //    FLOAT m_moveLeftRight;
-    //    FLOAT m_moveBackForward;
-    //    FLOAT m_moveUpDown;
+        XMVECTOR m_CameraForward;       // 160 bytes
+        XMVECTOR m_CameraRight;         // 176 bytes
+        XMVECTOR m_CameraUp;            // 192 bytes
 
-    //    FLOAT m_travelSpeed;
-    //    FLOAT m_rotationSpeed;
+        XMVECTOR m_Eye;                 // 208 bytes
+        XMVECTOR m_At;                  // 224 bytes
+        XMVECTOR m_Up;                  // 240 bytes
 
-    //    BYTE m_padding[12];
+        FLOAT m_Yaw;                    // 240 bytes
+        FLOAT m_Pitch;                  // 240 bytes
 
-    //    XMVECTOR m_cameraForward;
-    //    XMVECTOR m_cameraRight;
-    //    XMVECTOR m_cameraUp;
+        FLOAT m_MoveLeftRight;          // 256 bytes
+        FLOAT m_MoveBackForward;        // 256 bytes
+        FLOAT m_MoveUpDown;             // 256 bytes
 
-    //    XMVECTOR m_eye;
-    //    XMVECTOR m_at;
-    //    XMVECTOR m_up;
-
-    //    XMMATRIX m_rotation;
-    //    XMMATRIX m_view;
-    //};
+        FLOAT m_TravelSpeed;            // 256 bytes
+        FLOAT m_RotationSpeed;          // 272 bytes
+    };
+    static_assert(sizeof(Camera) % 16 == 0);
+    static_assert(sizeof(Camera) == 272);
 }

@@ -12,6 +12,8 @@
 
 #include "pch.h"
 
+#include "Utility/Utility.h"
+
 namespace pr
 {
     /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
@@ -42,11 +44,11 @@ namespace pr
     public:
         static LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam);
 
-        BaseWindow();
-        BaseWindow(const BaseWindow& rhs) = delete;
-        BaseWindow(BaseWindow&& rhs) = delete;
-        BaseWindow& operator=(const BaseWindow& rhs) = delete;
-        BaseWindow& operator=(BaseWindow&& rhs) = delete;
+        explicit constexpr BaseWindow() noexcept;
+        BaseWindow(const BaseWindow& other) = delete;
+        BaseWindow(BaseWindow&& other) = delete;
+        BaseWindow& operator=(const BaseWindow& other) = delete;
+        BaseWindow& operator=(BaseWindow&& other) = delete;
         virtual ~BaseWindow() = default;
 
         virtual HRESULT Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow, _In_ PCWSTR pszWindowName) = 0;
@@ -128,7 +130,7 @@ namespace pr
       Modifies: [m_hInstance, m_hWnd, m_pszWindowName].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     template<class DerivedType>
-    inline BaseWindow<DerivedType>::BaseWindow()
+    inline constexpr BaseWindow<DerivedType>::BaseWindow() noexcept
         : m_hInstance(nullptr)
         , m_hWnd(nullptr)
         , m_pszWindowName(nullptr)
@@ -226,7 +228,8 @@ namespace pr
 
             if (dwError != ERROR_CLASS_ALREADY_EXISTS)
             {
-                return HRESULT_FROM_WIN32(dwError);
+                HRESULT hr = HRESULT_FROM_WIN32(dwError);
+                CHECK_AND_RETURN_HRESULT(hr, L"BaseWindow<DerivedType>::initialize >> Call to RegisterEx failed!");
             }
 
             return E_FAIL;
