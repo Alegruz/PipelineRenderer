@@ -58,6 +58,15 @@
     <ClCompile Include="Graphics\CommandQueue.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Renderable.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\BaseCube.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicsCommon.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -100,6 +109,15 @@
       <Filter>Source Codes\Event</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\CommandQueue.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderable.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\BaseCube.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicsCommon.h">
       <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

@@ -98,7 +98,10 @@ xcopy /y /d "$(TargetDir)" "$(SolutionDir)..\Library\Release"</Command>
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Event\EventManager.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Graphics\BaseCube.cpp" />
     <ClCompile Include="Graphics\CommandQueue.cpp" />
+    <ClCompile Include="Graphics\GraphicsCommon.cpp" />
+    <ClCompile Include="Graphics\Renderable.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="pch.cpp">
@@ -114,8 +117,11 @@ xcopy /y /d "$(TargetDir)" "$(SolutionDir)..\Library\Release"</Command>
     <ClInclude Include="Event\Event.h" />
     <ClInclude Include="Event\EventManager.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Graphics\BaseCube.h" />
     <ClInclude Include="Graphics\CommandQueue.h" />
     <ClInclude Include="Graphics\DataTypes.h" />
+    <ClInclude Include="Graphics\GraphicsCommon.h" />
+    <ClInclude Include="Graphics\Renderable.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="pch.h" />
