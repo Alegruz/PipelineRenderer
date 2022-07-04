@@ -10,6 +10,7 @@ namespace pr
 			WCHAR szDebugMsg[64] = { L'\0', };
 			swprintf_s(szDebugMsg, L" HRESULT: 0x%08x\n", hr);
 			OutputDebugString(szDebugMsg);
+			MessageBox(nullptr, szDebugMsg, LPSZ_ENGINE_TITLE, MB_OK | MB_ICONERROR);
 		}
 
 		return hr;

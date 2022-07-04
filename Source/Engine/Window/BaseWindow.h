@@ -71,6 +71,7 @@ namespace pr
             _In_opt_ HMENU hMenu = nullptr
         );
 
+        RECT m_WindowRect;
         HINSTANCE m_hInstance;
         HWND m_hWnd;
         LPCWSTR m_pszWindowName;
@@ -131,7 +132,8 @@ namespace pr
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     template<class DerivedType>
     inline constexpr BaseWindow<DerivedType>::BaseWindow() noexcept
-        : m_hInstance(nullptr)
+        : m_WindowRect()
+        , m_hInstance(nullptr)
         , m_hWnd(nullptr)
         , m_pszWindowName(nullptr)
     {
@@ -238,19 +240,26 @@ namespace pr
         // Create window
         m_hInstance = hInstance;
         m_pszWindowName = pszWindowName;
-        RECT rc = { 0, 0, nWidth, nHeight };
-        AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+        m_WindowRect =
+        { 
+            .left = 0, 
+            .top = 0, 
+            .right = static_cast<LONG>(nWidth), 
+            .bottom = static_cast<LONG>(nHeight) 
+        };
+        AdjustWindowRect(&m_WindowRect, WS_OVERLAPPEDWINDOW, FALSE);
+
         m_hWnd = CreateWindow(
             GetWindowClassName(),                                       // Window class
             m_pszWindowName,                                            // Window text
             dwStyle,   // Window style
 
             // Size and Position
-            x, y, rc.right - rc.left, rc.bottom - rc.top,
+            x, y, m_WindowRect.right - m_WindowRect.left, m_WindowRect.bottom - m_WindowRect.top,
             hWndParent,    // Parent window
             hMenu,    // Menu
             m_hInstance,  // Instance handle
-            this     // Additiona;l application data
+            this     // Additional application data
         );
 
         if (!m_hWnd)

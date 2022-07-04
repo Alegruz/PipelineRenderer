@@ -13,9 +13,10 @@
 
 #include "pch.h"
 
+#include "Event/EventManager.h"
 #include "Graphics/Renderer.h"
 //#include "Scene/Scene.h"
-//#include "Window/MainWindow.h"
+#include "Window/MainWindow.h"
 
 namespace pr
 {
@@ -63,11 +64,13 @@ namespace pr
         std::unique_ptr<Renderer>& GetRenderer();
 
     private:
-        PCWSTR m_pszGameName;
-        std::unique_ptr<MainWindow> m_pMainWindow;
-        std::unique_ptr<Renderer> m_pRenderer;
+        std::shared_ptr<EventManager> m_pEventManager;      // 16
+
+        PCWSTR m_pszGameName;                               // 24
+        std::unique_ptr<MainWindow> m_pMainWindow;          // 32
+        std::unique_ptr<Renderer> m_pRenderer;              // 40
         //std::unordered_map<std::wstring, std::unique_ptr<Scene>> m_scenes;
-        PCWSTR m_pszMainSceneName;
+        PCWSTR m_pszMainSceneName;                          // 48
     };
-    static_assert(sizeof(Game) == 32);
+    static_assert(sizeof(Game) == 48);
 }

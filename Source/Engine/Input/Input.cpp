@@ -8,23 +8,43 @@ namespace pr
 	{	
 		assert(VK_LBUTTON <= button && button <= VK_OEM_CLEAR);
 
-		return (m_KeyboardInput[button / 64] & (1ull << ((button - 1ull) % 64)));
+		BOOL bResult = !!(m_KeyboardInput[button / 64] & (1ull << ((button - 1ull) % 64)));
+		return bResult;
+	}
+
+	BOOL KeyboardInput::IsButtonPressing(BYTE button) const noexcept
+	{
+		assert(VK_LBUTTON <= button && button <= VK_OEM_CLEAR);
+
+		BOOL bResult = !!(m_KeyboardInputPersistent[button / 64] & (1ull << ((button - 1ull) % 64)));
+		return bResult;
 	}
 
 	void KeyboardInput::ClearButton(BYTE button) noexcept
+	{
+		m_KeyboardInput[button / 64] &= ~(1ull << ((button - 1ull) % 64));
+		m_KeyboardInputPersistent[button / 64] &= ~(1ull << ((button - 1ull) % 64));
+	}
+
+	void KeyboardInput::ProcessedButton(BYTE button) noexcept
 	{
 		m_KeyboardInput[button / 64] &= ~(1ull << ((button - 1ull) % 64));
 	}
 
 	void KeyboardInput::SetButton(BYTE button) noexcept
 	{
-		m_KeyboardInput[button / 64] = (1ull << ((button - 1ull) % 64)) | m_KeyboardInput[button / 64];
+		if (!IsButtonPressing(button))
+		{
+			m_KeyboardInput[button / 64] = (1ull << ((button - 1ull) % 64)) | m_KeyboardInput[button / 64];
+		}
+
+		m_KeyboardInputPersistent[button / 64] = (1ull << ((button - 1ull) % 64)) | m_KeyboardInputPersistent[button / 64];
 	}
 
-	void KeyboardInput::ToggleButton(BYTE button) noexcept
-	{
-		m_KeyboardInput[button / 64] ^= 1ull << ((button - 1ull) % 64);
-	}
+	//void KeyboardInput::ToggleButton(BYTE button) noexcept
+	//{
+	//	m_KeyboardInput[button / 64] ^= 1ull << ((button - 1ull) % 64);
+	//}
 
 	void KeyboardInput::PrintKeyboardInputBinary() const noexcept
 	{

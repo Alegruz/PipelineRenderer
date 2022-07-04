@@ -96,7 +96,9 @@ xcopy /y /d "$(TargetDir)" "$(SolutionDir)..\Library\Release"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Event\EventManager.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Graphics\CommandQueue.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="pch.cpp">
@@ -109,7 +111,10 @@ xcopy /y /d "$(TargetDir)" "$(SolutionDir)..\Library\Release"</Command>
   <ItemGroup>
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="Event\Event.h" />
+    <ClInclude Include="Event\EventManager.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Graphics\CommandQueue.h" />
     <ClInclude Include="Graphics\DataTypes.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Input\Input.h" />

@@ -4,6 +4,14 @@
 
 namespace pr
 {
+    MainWindow::MainWindow(const std::shared_ptr<EventManager>& pEventManager) noexcept
+        : m_KeyboardInput()
+        , m_pEventManager(pEventManager)
+        , m_MouseRelativeMovement()
+        , m_bIsFullscreen(FALSE)
+    {
+    }
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   MainWindow::Initialize
 
@@ -33,15 +41,17 @@ namespace pr
         {
             return E_FAIL;
         }
+
         return initialize(
             hInstance,
             nCmdShow,
             pszWindowName,
-            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+            //WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+            WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT,
             CW_USEDEFAULT,
-            800,
-            600
+            DEFAULT_WIDTH,
+            DEFAULT_HEIGHT
         );
     }
 
@@ -155,7 +165,7 @@ namespace pr
         }
         case WM_KEYDOWN:
         {
-            if (!m_KeyboardInput.IsButtonPressed(static_cast<BYTE>(wParam)))
+            if (!m_KeyboardInput.IsButtonPressing(static_cast<BYTE>(wParam)))
             {
                 constexpr const size_t KEY_NAME_SIZE = 32;
                 WCHAR szKeyName[KEY_NAME_SIZE] = { L'\0', };
@@ -164,8 +174,16 @@ namespace pr
                 OutputDebugString(szKeyName);
                 OutputDebugString(L" Pressed!\n");
             }
-        }
+
             m_KeyboardInput.SetButton(static_cast<BYTE>(wParam));
+
+            if (m_KeyboardInput.IsButtonPressed(VK_F11))
+            {
+                SetFullscreen(!m_bIsFullscreen);
+                m_KeyboardInput.ProcessedButton(VK_F11);
+                break;
+            }
+        }
             break;
         case WM_KEYUP:
             m_KeyboardInput.ClearButton(static_cast<BYTE>(wParam));
@@ -178,8 +196,25 @@ namespace pr
                 OutputDebugString(L" Released!\n");
             }
             break;
-            // Note that this tutorial does not handle resizing (WM_SIZE) requests,
-            // so we created the window without the resize border.
+        case WM_SIZE:
+        {
+            RECT rc = {};
+            ::GetClientRect(m_hWnd, &rc);
+            INT nWidth = rc.right - rc.left;
+            INT nHeight = rc.bottom - rc.top;
+
+            EventMessage msg =
+            {
+                .Type = eEventType::RESIZE,
+                .uParam0 = static_cast<UINT64>(nWidth),
+                .uParam1 = static_cast<UINT64>(nHeight)
+            };
+            //m_pEventManager->AddEvent(msg);
+            WCHAR szDebugMsg[64] = { L'\0', };
+            swprintf_s(szDebugMsg, L"%d, %d\n", nWidth, nHeight);
+            OutputDebugString(szDebugMsg);
+        }
+        break;
         case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -192,6 +227,63 @@ namespace pr
         }
 
         return 0;
+    }
+
+    void MainWindow::SetFullscreen(BOOL bSetFullscreen) noexcept
+    {
+        if (m_bIsFullscreen != bSetFullscreen)
+        {
+            m_bIsFullscreen = bSetFullscreen;
+
+            if (m_bIsFullscreen)
+            {
+                // Store the current window dimensions so they can be restored 
+                // when switching out of fullscreen state.
+                ::GetWindowRect(m_hWnd, &m_WindowRect);
+
+                // Set the window style to a borderless window so the client area fills
+                // the entire screen.
+                UINT windowStyle = WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+
+                ::SetWindowLongW(m_hWnd, GWL_STYLE, windowStyle);
+
+                // Query the name of the nearest display device for the window.
+               // This is required to set the fullscreen dimensions of the window
+               // when using a multi-monitor setup.
+                HMONITOR hMonitor = ::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTONEAREST);
+                MONITORINFOEX monitorInfo = {};
+                monitorInfo.cbSize = sizeof(MONITORINFOEX);
+                ::GetMonitorInfo(hMonitor, &monitorInfo);
+
+                ::SetWindowPos(m_hWnd, HWND_TOP,
+                    monitorInfo.rcMonitor.left,
+                    monitorInfo.rcMonitor.top,
+                    monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+                    monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+                    SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+                ::ShowWindow(m_hWnd, SW_MAXIMIZE);
+            }
+            else
+            {
+                // Restore all the window decorators.
+                ::SetWindowLong(m_hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+
+                ::SetWindowPos(m_hWnd, HWND_NOTOPMOST,
+                    m_WindowRect.left,
+                    m_WindowRect.top,
+                    m_WindowRect.right - m_WindowRect.left,
+                    m_WindowRect.bottom - m_WindowRect.top,
+                    SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+                ::ShowWindow(m_hWnd, SW_NORMAL);
+            }
+        }
+    }
+
+    KeyboardInput& MainWindow::GetKeyboardInput() noexcept
+    {
+        return m_KeyboardInput;
     }
 
     const KeyboardInput& MainWindow::GetKeyboardInput() const noexcept

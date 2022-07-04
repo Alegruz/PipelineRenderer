@@ -18,8 +18,9 @@ namespace pr
       Modifies: [m_pszGameName, m_mainWindow, m_renderer].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     Game::Game(_In_ PCWSTR pszGameName) noexcept
-        : m_pszGameName(pszGameName)
-        , m_pMainWindow(std::make_unique<MainWindow>())
+        : m_pEventManager(std::make_unique<EventManager>())
+        , m_pszGameName(pszGameName)
+        , m_pMainWindow(std::make_unique<MainWindow>(m_pEventManager))
         , m_pRenderer(std::make_unique<Renderer>())
         //, m_scenes()
         , m_pszMainSceneName(nullptr)
@@ -44,6 +45,13 @@ namespace pr
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Game::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow)
     {
+        // Windows 10 Creators update adds Per Monitor V2 DPI awareness context.
+        // Using this awareness context allows the client area of the window 
+        // to achieve 100% scaling while still allowing non-client window content to 
+        // be rendered in a DPI sensitive fashion.
+        SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+
         HRESULT hr = m_pMainWindow->Initialize(hInstance, nCmdShow, m_pszGameName);
         CHECK_AND_RETURN_HRESULT(hr, L"Game::Initialize >> MainWindow::Initialize");
 
@@ -90,6 +98,23 @@ namespace pr
                 QueryPerformanceCounter(&startingTime);
 
                 FLOAT deltaTime = static_cast<FLOAT>(elapsedMicroseconds.QuadPart) / 1000000.0f;
+
+                size_t uNumEvents = m_pEventManager->GetSize();
+                EventMessage* pEventMessages = m_pEventManager->GetEvents();
+                for (size_t i = 0; i < uNumEvents; ++i)
+                {
+                    switch (pEventMessages[i].Type)
+                    {
+                    case eEventType::RESIZE:
+                    {
+                        m_pRenderer->Resize(static_cast<UINT>(pEventMessages[i].uParam0), static_cast<UINT>(pEventMessages[i].uParam1));
+                    }
+                    break;
+                    default:
+                        assert(false);
+                        break;
+                    }
+                }
 
                 m_pRenderer->HandleInput(m_pMainWindow->GetKeyboardInput(), m_pMainWindow->GetMouseRelativeMovement(), deltaTime);
                 m_pMainWindow->ResetMouseMovement();

@@ -26,6 +26,9 @@
     <Filter Include="Source Codes\Utility">
       <UniqueIdentifier>{9b3faf87-012b-46c5-a9e5-9a6db556ee3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Codes\Event">
+      <UniqueIdentifier>{d241074c-4a92-4d34-a432-189225af409f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp">
@@ -47,6 +50,12 @@
       <Filter>Source Codes\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Renderer.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Event\EventManager.cpp">
+      <Filter>Source Codes\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\CommandQueue.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -82,6 +91,15 @@
       <Filter>Source Codes\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Renderer.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\EventManager.h">
+      <Filter>Source Codes\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\Event.h">
+      <Filter>Source Codes\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\CommandQueue.h">
       <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

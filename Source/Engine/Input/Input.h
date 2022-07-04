@@ -31,14 +31,17 @@ namespace pr
 		~KeyboardInput() noexcept = default;
 
 		BOOL IsButtonPressed(BYTE button) const noexcept;
+		BOOL IsButtonPressing(BYTE button) const noexcept;
 		
 		void ClearButton(BYTE button) noexcept;
+		void ProcessedButton(BYTE button) noexcept;
 		void SetButton(BYTE button) noexcept;
-		void ToggleButton(BYTE button) noexcept;
+		//void ToggleButton(BYTE button) noexcept;
 
 		void PrintKeyboardInputBinary() const noexcept;
 
 	private:
+		UINT64 m_KeyboardInputPersistent[4];
 		UINT64 m_KeyboardInput[4];
 	};
 }

@@ -60,6 +60,11 @@
 #define D3D12_GPU_VIRTUAL_ADDRESS_NULL      ((D3D12_GPU_VIRTUAL_ADDRESS)0)
 #define D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN   ((D3D12_GPU_VIRTUAL_ADDRESS)-1)
 
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxguid.lib")
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -73,6 +78,7 @@
 #include <exception>
 #include <filesystem>
 #include <memory>
+#include <queue>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -84,6 +90,8 @@
 #include "Resource.h"
 
 constexpr LPCWSTR LPSZ_ENGINE_TITLE = L"Pipeline Renderer";
+constexpr const size_t DEFAULT_WIDTH = 1280;
+constexpr const size_t DEFAULT_HEIGHT = 720;
 
 using namespace Microsoft::WRL;
 using namespace DirectX;

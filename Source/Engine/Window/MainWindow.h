@@ -14,6 +14,7 @@
 
 #include "pch.h"
 
+#include "Event/EventManager.h"
 #include "Input/Input.h"
 #include "Window/BaseWindow.h"
 
@@ -38,7 +39,8 @@ namespace pr
     class MainWindow : public BaseWindow<MainWindow>
     {
     public:
-        explicit constexpr MainWindow() noexcept = default;
+        explicit constexpr MainWindow() noexcept = delete;
+        explicit MainWindow(const std::shared_ptr<EventManager>& pEventManager) noexcept;
         MainWindow(const MainWindow& other) = delete;
         MainWindow(MainWindow&& other) = delete;
         MainWindow& operator=(const MainWindow& other) = delete;
@@ -48,13 +50,19 @@ namespace pr
         HRESULT Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow, _In_ PCWSTR pszWindowName) override;
         PCWSTR GetWindowClassName() const override;
         LRESULT HandleMessage(_In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam) override;
+        void SetFullscreen(BOOL bSetFullscreen) noexcept;
 
+        KeyboardInput& GetKeyboardInput() noexcept;
         const KeyboardInput& GetKeyboardInput() const noexcept;
         const MouseRelativeMovement& GetMouseRelativeMovement() const;
         void ResetMouseMovement();
 
     private:
         KeyboardInput m_KeyboardInput;
+        std::shared_ptr<EventManager> m_pEventManager;
         MouseRelativeMovement m_MouseRelativeMovement;
+        BOOL m_bIsFullscreen;
     };
+    static_assert(sizeof(BaseWindow<MainWindow>) == 48);
+    static_assert(sizeof(MainWindow) == 144);
 }

@@ -11,970 +11,140 @@
 ===================================================================+*/
 #pragma once
 
-#include "Common.h"
+#include "pch.h"
 
-#include "Renderer/DataTypes.h"
-#include "Shader/PixelShader.h"
-#include "Shader/VertexShader.h"
-#include "Texture/Material.h"
+#include "Graphics/DataTypes.h"
+//#include "Shader/PixelShader.h"
+//#include "Shader/VertexShader.h"
+//#include "Texture/Material.h"
 
-namespace library
+namespace pr
 {
-#ifdef LAB10
-    namespace lab10
+    /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
+      Class:    Renderable
+
+      Summary:  Base class for all renderable classes
+
+      Methods:  Initialize
+                  Pure virtual function that initializes the object
+                Update
+                  Pure virtual function that updates the object each
+                  frame
+                GetVertexBuffer
+                  Returns the vertex buffer
+                GetIndexBuffer
+                  Returns the index buffer
+                GetConstantBuffer
+                  Returns the constant buffer
+                GetWorldMatrix
+                  Returns the world matrix
+                GetNumVertices
+                  Pure virtual function that returns the number of
+                  vertices
+                GetNumIndices
+                  Pure virtual function that returns the number of
+                  indices
+                Renderable
+                  Constructor.
+                ~Renderable
+                  Destructor.
+    C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
+    class Renderable
     {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
+    public:
+        static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
 
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
+    protected:
+        struct BasicMeshEntry
         {
-        public:
-            static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
-
-        protected:
-            struct BasicMeshEntry
+            BasicMeshEntry()
+                : uNumIndices(0u)
+                , uBaseVertex(0u)
+                , uBaseIndex(0u)
+                , uMaterialIndex(INVALID_MATERIAL)
             {
-                BasicMeshEntry()
-                    : uNumIndices(0u)
-                    , uBaseVertex(0u)
-                    , uBaseIndex(0u)
-                    , uMaterialIndex(INVALID_MATERIAL)
-                {
-                }
+            }
 
-                UINT uNumIndices;
-                UINT uBaseVertex;
-                UINT uBaseIndex;
-                UINT uMaterialIndex;
-            };
-
-        public:
-            Renderable(_In_ const XMFLOAT4& outputColor);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            void AddMaterial(_In_ const std::shared_ptr<Material>& material);
-            HRESULT SetMaterialOfMesh(_In_ const UINT uMeshIndex, _In_ const UINT uMaterialIndex);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            ComPtr<ID3D11Buffer>& GetNormalBuffer();
-
-            const XMMATRIX& GetWorldMatrix() const;
-            const XMFLOAT4& GetOutputColor() const;
-            BOOL HasTexture() const;
-            const std::shared_ptr<Material>& GetMaterial(UINT uIndex) const;
-            const BasicMeshEntry& GetMesh(UINT uIndex) const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-
-            UINT GetNumMeshes() const;
-            UINT GetNumMaterials() const;
-            BOOL HasNormalMap() const;
-
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            virtual HRESULT initialize(
-                _In_ ID3D11Device* pDevice,
-                _In_ ID3D11DeviceContext* pImmediateContext
-            );
-
-            void calculateNormalMapVectors();
-            void calculateTangentBitangent(_In_ const SimpleVertex& v1, _In_ const SimpleVertex& v2, _In_ const SimpleVertex& v3, _Out_ XMFLOAT3& tangent, _Out_ XMFLOAT3& bitangent);
-
-        protected:
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-            ComPtr<ID3D11Buffer> m_normalBuffer;
-
-            std::vector<BasicMeshEntry> m_aMeshes;
-            std::vector<std::shared_ptr<Material>> m_aMaterials;
-            std::vector<NormalData> m_aNormalData;
-
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-
-            XMFLOAT4 m_outputColor;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-            BOOL m_bHasNormalMap;
+            UINT uNumIndices;
+            UINT uBaseVertex;
+            UINT uBaseIndex;
+            UINT uMaterialIndex;
         };
-    }
-#endif
 
-#ifdef LAB09
-    namespace lab09
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
-
-        protected:
-            struct BasicMeshEntry
-            {
-                BasicMeshEntry()
-                    : uNumIndices(0u)
-                    , uBaseVertex(0u)
-                    , uBaseIndex(0u)
-                    , uMaterialIndex(INVALID_MATERIAL)
-                {
-                }
-
-                UINT uNumIndices;
-                UINT uBaseVertex;
-                UINT uBaseIndex;
-                UINT uMaterialIndex;
-            };
-
-        public:
-            Renderable(_In_ const XMFLOAT4& outputColor);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            void AddMaterial(_In_ const std::shared_ptr<Material>& material);
-            HRESULT SetMaterialOfMesh(_In_ const UINT uMeshIndex, _In_ const UINT uMaterialIndex);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            ComPtr<ID3D11Buffer>& GetNormalBuffer();
-
-            const XMMATRIX& GetWorldMatrix() const;
-            const XMFLOAT4& GetOutputColor() const;
-            BOOL HasTexture() const;
-            const std::shared_ptr<Material>& GetMaterial(UINT uIndex) const;
-            const BasicMeshEntry& GetMesh(UINT uIndex) const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-
-            UINT GetNumMeshes() const;
-            UINT GetNumMaterials() const;
-            BOOL HasNormalMap() const;
-
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            virtual HRESULT initialize(
-                _In_ ID3D11Device* pDevice,
-                _In_ ID3D11DeviceContext* pImmediateContext
-            );
-
-            void calculateNormalMapVectors();
-            void calculateTangentBitangent(_In_ const SimpleVertex& v1, _In_ const SimpleVertex& v2, _In_ const SimpleVertex& v3, _Out_ XMFLOAT3& tangent, _Out_ XMFLOAT3& bitangent);
-
-        protected:
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-            ComPtr<ID3D11Buffer> m_normalBuffer;
-
-            std::vector<BasicMeshEntry> m_aMeshes;
-            std::vector<std::shared_ptr<Material>> m_aMaterials;
-            std::vector<NormalData> m_aNormalData;
-
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-
-            XMFLOAT4 m_outputColor;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-            BOOL m_bHasNormalMap;
-        };
-    }
-#endif
-
-#ifdef LAB08
-    namespace lab08
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
-
-        protected:
-            struct BasicMeshEntry
-            {
-                BasicMeshEntry()
-                    : uNumIndices(0u)
-                    , uBaseVertex(0u)
-                    , uBaseIndex(0u)
-                    , uMaterialIndex(INVALID_MATERIAL)
-                {
-                }
-
-                UINT uNumIndices;
-                UINT uBaseVertex;
-                UINT uBaseIndex;
-                UINT uMaterialIndex;
-            };
-
-        public:
-            Renderable(_In_ const XMFLOAT4& outputColor);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            
-            const XMMATRIX& GetWorldMatrix() const;
-            const XMFLOAT4& GetOutputColor() const;
-            BOOL HasTexture() const;
-            const Material& GetMaterial(UINT uIndex) const;
-            const BasicMeshEntry& GetMesh(UINT uIndex) const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-
-            UINT GetNumMeshes() const;
-            UINT GetNumMaterials() const;
-
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            virtual HRESULT initialize(
-                _In_ ID3D11Device* pDevice,
-                _In_ ID3D11DeviceContext* pImmediateContext
-                );
-
-        protected:
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-
-            std::vector<BasicMeshEntry> m_aMeshes;
-            std::vector<Material> m_aMaterials;
-
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-
-            XMFLOAT4 m_outputColor;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-        };
-    }
-#endif
-
-#ifdef ASS02
-    namespace ass02
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
-        protected:
-            struct BasicMeshEntry
-            {
-                BasicMeshEntry()
-                    : uNumIndices(0u)
-                    , uBaseVertex(0u)
-                    , uBaseIndex(0u)
-                    , uMaterialIndex(INVALID_MATERIAL)
-                {
-                }
-
-                UINT uNumIndices;
-                UINT uBaseVertex;
-                UINT uBaseIndex;
-                UINT uMaterialIndex;
-            };
-
-        public:
-            Renderable(_In_ const XMFLOAT4& outputColor);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            
-            const XMMATRIX& GetWorldMatrix() const;
-            const XMFLOAT4& GetOutputColor() const;
-            BOOL HasTexture() const;
-            const Material& GetMaterial(UINT uIndex) const;
-            const BasicMeshEntry& GetMesh(UINT uIndex) const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-
-            UINT GetNumMeshes() const;
-            UINT GetNumMaterials() const;
-
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            virtual HRESULT initialize(
-                _In_ ID3D11Device* pDevice,
-                _In_ ID3D11DeviceContext* pImmediateContext
-                );
-
-        protected:
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-
-            std::vector<BasicMeshEntry> m_aMeshes;
-            std::vector<Material> m_aMaterials;
-
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-
-            XMFLOAT4 m_outputColor;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-        };
-    }
-#endif
-
-#ifdef LAB07
-    namespace lab07
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            static constexpr const UINT INVALID_MATERIAL = (0xFFFFFFFF);
-
-        protected:
-            struct BasicMeshEntry
-            {
-                BasicMeshEntry()
-                    : uNumIndices(0u)
-                    , uBaseVertex(0u)
-                    , uBaseIndex(0u)
-                    , uMaterialIndex(INVALID_MATERIAL)
-                {
-                }
-
-                UINT uNumIndices;
-                UINT uBaseVertex;
-                UINT uBaseIndex;
-                UINT uMaterialIndex;
-            };
-
-        public:
-            Renderable(_In_ const XMFLOAT4& outputColor);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-
-            const XMMATRIX& GetWorldMatrix() const;
-            const XMFLOAT4& GetOutputColor() const;
-            BOOL HasTexture() const;
-            const Material& GetMaterial(UINT uIndex) const;
-            const BasicMeshEntry& GetMesh(UINT uIndex) const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-
-            UINT GetNumMeshes() const;
-            UINT GetNumMaterials() const;
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            HRESULT initialize(
-                _In_ ID3D11Device* pDevice,
-                _In_ ID3D11DeviceContext* pImmediateContext
-                );
-
-        protected:
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-
-            std::vector<BasicMeshEntry> m_aMeshes;
-            std::vector<Material> m_aMaterials;
-
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-
-            XMFLOAT4 m_outputColor;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-        };
-    }
-#endif
-
-#ifdef LAB06
-    namespace lab06
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            Renderable(_In_ const std::filesystem::path& textureFilePath);
-            Renderable(_In_ const XMFLOAT4& outputColor);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            const XMMATRIX& GetWorldMatrix() const;
-            ComPtr<ID3D11ShaderResourceView>& GetTextureResourceView();
-            ComPtr<ID3D11SamplerState>& GetSamplerState();
-            const XMFLOAT4& GetOutputColor() const;
-            BOOL HasTexture() const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            HRESULT initialize(
-                _In_ ID3D11Device* pDevice,
-                _In_ ID3D11DeviceContext* pImmediateContext
-                );
-
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-            ComPtr<ID3D11ShaderResourceView> m_textureRV;
-            ComPtr<ID3D11SamplerState> m_samplerLinear;
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-            std::filesystem::path m_textureFilePath;
-            XMFLOAT4 m_outputColor;
-            XMMATRIX m_world;
-            BOOL m_bHasTextures;
-            BYTE m_padding[12];
-        };
-    }
-#endif
-
-#ifdef LAB05
-    namespace lab05
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            Renderable(const std::filesystem::path& textureFilePath);
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            const XMMATRIX& GetWorldMatrix() const;
-            ComPtr<ID3D11ShaderResourceView>& GetTextureResourceView();
-            ComPtr<ID3D11SamplerState>& GetSamplerState();
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            HRESULT initialize(
-                _In_ ID3D11Device* pDevice, 
-                _In_ ID3D11DeviceContext* pImmediateContext
-                );
-
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-            ComPtr<ID3D11ShaderResourceView> m_textureRV;
-            ComPtr<ID3D11SamplerState> m_samplerLinear;
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-            std::filesystem::path m_textureFilePath;
-            //BYTE m_padding[8];
-            XMMATRIX m_world;
-        };
-    }
-#endif
-
-#ifdef ASS01
-    namespace ass01
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            Renderable() = default;
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            const XMMATRIX& GetWorldMatrix() const;
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-        protected:
-            const virtual SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            HRESULT initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext);
-
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-        };
-    }
-#endif
-
-#ifdef LAB04
-    namespace lab04
-    {
-        /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-          Class:    Renderable
-
-          Summary:  Base class for all renderable classes
-
-          Methods:  Initialize
-                      Pure virtual function that initializes the object
-                    Update
-                      Pure virtual function that updates the object each 
-                      frame
-                    GetVertexBuffer
-                      Returns the vertex buffer
-                    GetIndexBuffer
-                      Returns the index buffer
-                    GetConstantBuffer
-                      Returns the constant buffer
-                    GetWorldMatrix
-                      Returns the world matrix
-                    GetNumVertices
-                      Pure virtual function that returns the number of 
-                      vertices
-                    GetNumIndices
-                      Pure virtual function that returns the number of 
-                      indices
-                    Renderable
-                      Constructor.
-                    ~Renderable
-                      Destructor.
-        C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-        class Renderable
-        {
-        public:
-            Renderable() = default;
-            Renderable(const Renderable& other) = delete;
-            Renderable(Renderable&& other) = delete;
-            Renderable& operator=(const Renderable& other) = delete;
-            Renderable& operator=(Renderable&& other) = delete;
-            virtual ~Renderable() = default;
-
-            virtual HRESULT Initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext) = 0;
-            virtual void Update(_In_ FLOAT deltaTime) = 0;
-
-            void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
-            void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
-
-            ComPtr<ID3D11VertexShader>& GetVertexShader();
-            ComPtr<ID3D11PixelShader>& GetPixelShader();
-            ComPtr<ID3D11InputLayout>& GetVertexLayout();
-            ComPtr<ID3D11Buffer>& GetVertexBuffer();
-            ComPtr<ID3D11Buffer>& GetIndexBuffer();
-            ComPtr<ID3D11Buffer>& GetConstantBuffer();
-            const XMMATRIX& GetWorldMatrix() const;
-
-            void RotateX(_In_ FLOAT angle);
-            void RotateY(_In_ FLOAT angle);
-            void RotateZ(_In_ FLOAT angle);
-            void RotateRollPitchYaw(_In_ FLOAT pitch, _In_ FLOAT yaw, _In_ FLOAT roll);
-            void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
-            void Translate(_In_ const XMVECTOR& offset);
-
-            virtual UINT GetNumVertices() const = 0;
-            virtual UINT GetNumIndices() const = 0;
-        protected:
-            virtual const SimpleVertex* getVertices() const = 0;
-            virtual const WORD* getIndices() const = 0;
-            HRESULT initialize(_In_ ID3D11Device* pDevice, _In_ ID3D11DeviceContext* pImmediateContext);
-
-            ComPtr<ID3D11Buffer> m_vertexBuffer;
-            ComPtr<ID3D11Buffer> m_indexBuffer;
-            ComPtr<ID3D11Buffer> m_constantBuffer;
-            std::shared_ptr<VertexShader> m_vertexShader;
-            std::shared_ptr<PixelShader> m_pixelShader;
-            BYTE m_padding[8];
-            XMMATRIX m_world;
-        };
-    }
-#endif
+    public:
+        explicit Renderable() noexcept;
+        explicit Renderable(_In_ eVertexType vertexType) noexcept;
+        Renderable(const Renderable& other) = delete;
+        Renderable(Renderable&& other) = delete;
+        Renderable& operator=(const Renderable& other) = delete;
+        Renderable& operator=(Renderable&& other) = delete;
+        virtual ~Renderable() = default;
+
+        virtual HRESULT Initialize(_In_ ID3D12Device* pDevice) = 0;
+        virtual void Update(_In_ FLOAT deltaTime) = 0;
+
+        //void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
+        //void SetPixelShader(_In_ const std::shared_ptr<PixelShader>& pixelShader);
+
+        //void AddMaterial(_In_ const std::shared_ptr<Material>& material);
+        //HRESULT SetMaterialOfMesh(_In_ const UINT uMeshIndex, _In_ const UINT uMaterialIndex);
+
+        //ComPtr<ID3D11VertexShader>& GetVertexShader();
+        //ComPtr<ID3D11PixelShader>& GetPixelShader();
+        //ComPtr<ID3D11InputLayout>& GetVertexLayout();
+        ComPtr<ID3D12Resource>& GetVertexBuffer();
+        ComPtr<ID3D12Resource>& GetIndexBuffer();
+        //ComPtr<ID3D11Buffer>& GetConstantBuffer();
+        //ComPtr<ID3D11Buffer>& GetNormalBuffer();
+
+        const XMMATRIX& GetWorldMatrix() const;
+        //const XMFLOAT4& GetOutputColor() const;
+        //BOOL HasTexture() const;
+        //const std::shared_ptr<Material>& GetMaterial(UINT uIndex) const;
+        //const BasicMeshEntry& GetMesh(UINT uIndex) const;
+
+        void RotateX(_In_ FLOAT angle);
+        void RotateY(_In_ FLOAT angle);
+        void RotateZ(_In_ FLOAT angle);
+        void RotateRollPitchYaw(_In_ FLOAT roll, _In_ FLOAT pitch, _In_ FLOAT yaw);
+        void Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ);
+        void Translate(_In_ const XMVECTOR& offset);
+
+        virtual UINT GetNumVertices() const = 0;
+        virtual UINT GetNumIndices() const = 0;
+
+        eVertexType GetVertexType() const noexcept;
+        //UINT GetNumMeshes() const;
+        //UINT GetNumMaterials() const;
+        //BOOL HasNormalMap() const;
+
+    protected:
+        const virtual void* getVertices() const = 0;
+        virtual const WORD* getIndices() const = 0;
+        virtual HRESULT initialize(
+            _In_ ID3D12Device* pDevice
+        );
+
+    protected:
+        //ComPtr<ID3D12Resource> m_pConstantBuffer;
+
+        //std::vector<BasicMeshEntry> m_aMeshes;
+        //std::vector<std::shared_ptr<Material>> m_aMaterials;
+        //std::vector<NormalData> m_aNormalData;
+
+        //std::shared_ptr<VertexShader> m_vertexShader;
+        //std::shared_ptr<PixelShader> m_pixelShader;
+
+        //XMFLOAT4 m_outputColor;
+        //BYTE m_padding[8];
+        XMMATRIX m_World;           // 80
+        eVertexType m_VertexType;   // 80
+
+        ComPtr<ID3D12Resource> m_pVertexBuffer; // 96
+        ComPtr<ID3D12Resource> m_pIndexBuffer;  // 96
+        D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;   // 112
+        D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;   // 128
+        //BOOL m_bHasNormalMap;
+    };
+    static_assert(sizeof(Renderable) == 128);
 }
