@@ -61,7 +61,16 @@
     </Link>
     <FxCompile>
       <ShaderModel>5.1</ShaderModel>
+      <ObjectFileOutput>$(OutDir)%(Filename).cso;</ObjectFileOutput>
     </FxCompile>
+    <PostBuildEvent>
+      <Command>xcopy /E /Y "$(OutDir)Contents" "$(ProjectDir)$(Platform)\$(Configuration)\Contents\"
+xcopy /E /Y "$(OutDir)Contents" "$(ProjectDir)Contents\"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy /E /Y "$(SolutionDir)..\Contents\" "$(OutDir)Contents"
+xcopy /E /Y "$(SolutionDir)..\Contents\" "$(ProjectDir)Contents"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -85,20 +94,19 @@
     </Link>
     <FxCompile>
       <ShaderModel>5.1</ShaderModel>
+      <ObjectFileOutput>$(OutDir)%(Filename).cso;</ObjectFileOutput>
     </FxCompile>
+    <PostBuildEvent>
+      <Command>xcopy /E /Y "$(OutDir)Contents" "$(ProjectDir)$(Platform)\$(Configuration)\Contents\"
+xcopy /E /Y "$(OutDir)Contents" "$(ProjectDir)Contents\"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>xcopy /E /Y "$(SolutionDir)..\Contents\" "$(OutDir)Contents"
+xcopy /E /Y "$(SolutionDir)..\Contents\" "$(ProjectDir)Contents"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

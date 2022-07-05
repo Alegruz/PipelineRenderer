@@ -16,7 +16,7 @@
 #include "Graphics/DataTypes.h"
 //#include "Shader/PixelShader.h"
 //#include "Shader/VertexShader.h"
-//#include "Texture/Material.h"
+#include "Texture/Material.h"
 
 namespace pr
 {
@@ -80,7 +80,7 @@ namespace pr
         Renderable& operator=(Renderable&& other) = delete;
         virtual ~Renderable() = default;
 
-        virtual HRESULT Initialize(_In_ ID3D12Device* pDevice) = 0;
+        virtual HRESULT Initialize(_In_ ID3D12Device2* pDevice, _In_ ID3D12GraphicsCommandList2* pCommandList) = 0;
         virtual void Update(_In_ FLOAT deltaTime) = 0;
 
         //void SetVertexShader(_In_ const std::shared_ptr<VertexShader>& vertexShader);
@@ -93,7 +93,9 @@ namespace pr
         //ComPtr<ID3D11PixelShader>& GetPixelShader();
         //ComPtr<ID3D11InputLayout>& GetVertexLayout();
         ComPtr<ID3D12Resource>& GetVertexBuffer();
+        const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const noexcept;
         ComPtr<ID3D12Resource>& GetIndexBuffer();
+        const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const noexcept;
         //ComPtr<ID3D11Buffer>& GetConstantBuffer();
         //ComPtr<ID3D11Buffer>& GetNormalBuffer();
 
@@ -101,7 +103,7 @@ namespace pr
         //const XMFLOAT4& GetOutputColor() const;
         //BOOL HasTexture() const;
         //const std::shared_ptr<Material>& GetMaterial(UINT uIndex) const;
-        //const BasicMeshEntry& GetMesh(UINT uIndex) const;
+        const BasicMeshEntry& GetMesh(UINT uIndex) const;
 
         void RotateX(_In_ FLOAT angle);
         void RotateY(_In_ FLOAT angle);
@@ -114,22 +116,20 @@ namespace pr
         virtual UINT GetNumIndices() const = 0;
 
         eVertexType GetVertexType() const noexcept;
-        //UINT GetNumMeshes() const;
+        UINT GetNumMeshes() const;
         //UINT GetNumMaterials() const;
         //BOOL HasNormalMap() const;
 
     protected:
         const virtual void* getVertices() const = 0;
         virtual const WORD* getIndices() const = 0;
-        virtual HRESULT initialize(
-            _In_ ID3D12Device* pDevice
-        );
+        virtual HRESULT initialize(_In_ ID3D12Device2* pDevice, _In_ ID3D12GraphicsCommandList2* pCommandList);
 
     protected:
         //ComPtr<ID3D12Resource> m_pConstantBuffer;
 
-        //std::vector<BasicMeshEntry> m_aMeshes;
-        //std::vector<std::shared_ptr<Material>> m_aMaterials;
+        std::vector<BasicMeshEntry> m_aMeshes;
+        std::vector<std::shared_ptr<Material>> m_aMaterials;
         //std::vector<NormalData> m_aNormalData;
 
         //std::shared_ptr<VertexShader> m_vertexShader;
@@ -141,10 +141,12 @@ namespace pr
         eVertexType m_VertexType;   // 80
 
         ComPtr<ID3D12Resource> m_pVertexBuffer; // 96
+        ComPtr<ID3D12Resource> m_pVertexUploadBuffer; // 96
         ComPtr<ID3D12Resource> m_pIndexBuffer;  // 96
+        ComPtr<ID3D12Resource> m_pIndexUploadBuffer;  // 96
         D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;   // 112
         D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;   // 128
-        //BOOL m_bHasNormalMap;
+        BOOL m_bHasNormalMap;
     };
-    static_assert(sizeof(Renderable) == 128);
+    //static_assert(sizeof(Renderable) == 160);
 }

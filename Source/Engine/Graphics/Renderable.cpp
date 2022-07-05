@@ -34,7 +34,12 @@ namespace pr
         : m_World(XMMatrixIdentity())
         , m_VertexType(vertexType)
         , m_pVertexBuffer()
+        , m_pVertexUploadBuffer()
         , m_pIndexBuffer()
+        , m_pIndexUploadBuffer()
+        , m_VertexBufferView()
+        , m_IndexBufferView()
+        , m_bHasNormalMap(FALSE)
     {
     }
 
@@ -144,6 +149,11 @@ namespace pr
         return m_pVertexBuffer;
     }
 
+    const D3D12_VERTEX_BUFFER_VIEW& Renderable::GetVertexBufferView() const noexcept
+    {
+        return m_VertexBufferView;
+    }
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::GetIndexBuffer
 
@@ -155,6 +165,11 @@ namespace pr
     ComPtr<ID3D12Resource>& Renderable::GetIndexBuffer()
     {
         return m_pIndexBuffer;
+    }
+
+    const D3D12_INDEX_BUFFER_VIEW& Renderable::GetIndexBufferView() const noexcept
+    {
+        return m_IndexBufferView;
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -200,12 +215,12 @@ namespace pr
     //    return m_aMaterials[uIndex];
     //}
 
-    //const Renderable::BasicMeshEntry& Renderable::GetMesh(UINT uIndex) const
-    //{
-    //    assert(uIndex < m_aMeshes.size());
+    const Renderable::BasicMeshEntry& Renderable::GetMesh(UINT uIndex) const
+    {
+        assert(uIndex < m_aMeshes.size());
 
-    //    return m_aMeshes[uIndex];
-    //}
+        return m_aMeshes[uIndex];
+    }
 
     void Renderable::RotateX(_In_ FLOAT angle)
     {
@@ -242,10 +257,10 @@ namespace pr
         return m_VertexType;
     }
 
-    //UINT Renderable::GetNumMeshes() const
-    //{
-    //    return static_cast<UINT>(m_aMeshes.size());
-    //}
+    UINT Renderable::GetNumMeshes() const
+    {
+        return static_cast<UINT>(m_aMeshes.size());
+    }
 
     //UINT Renderable::GetNumMaterials() const
     //{
@@ -273,18 +288,42 @@ namespace pr
       Returns:  HRESULT
                   Status code
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    HRESULT Renderable::initialize(
-        _In_ ID3D12Device* pDevice
-    )
+    HRESULT Renderable::initialize(_In_ ID3D12Device2* pDevice, _In_ ID3D12GraphicsCommandList2* pCommandList)
     {
         HRESULT hr = S_OK;
 
         // Create vertex buffer
-        ComPtr<ID3D12Resource> pIntermediateVertexBuffer;
-        //UpdateBufferResource();
+        UpdateBufferResource(
+            &m_pVertexBuffer,
+            &m_pVertexUploadBuffer, 
+            pDevice, 
+            pCommandList, 
+            static_cast<size_t>(GetNumVertices()), 
+            VERTEX_SIZE[static_cast<size_t>(m_VertexType)], 
+            getVertices()
+        );
+
+        // Create the vertex buffer view
+        m_VertexBufferView.BufferLocation = m_pVertexBuffer->GetGPUVirtualAddress();
+        m_VertexBufferView.SizeInBytes = GetNumVertices() * static_cast<UINT>(VERTEX_SIZE[static_cast<size_t>(m_VertexType)]);
+        m_VertexBufferView.StrideInBytes = static_cast<UINT>(VERTEX_SIZE[static_cast<size_t>(m_VertexType)]);
 
         // Create index buffer
-        // 
+        UpdateBufferResource(
+            &m_pIndexBuffer,
+            &m_pIndexUploadBuffer,
+            pDevice,
+            pCommandList,
+            static_cast<size_t>(GetNumIndices()),
+            sizeof(WORD),
+            getIndices()
+        );
+
+        // Create the index buffer view
+        m_IndexBufferView.BufferLocation = m_pIndexBuffer->GetGPUVirtualAddress();
+        m_IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+        m_IndexBufferView.SizeInBytes = GetNumIndices() * sizeof(WORD);
+
         // Create the constant buffers
 
         return hr;

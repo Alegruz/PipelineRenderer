@@ -18,8 +18,8 @@ namespace pr
         , m_MoveLeftRight(0.0f)
         , m_MoveBackForward(0.0f)
         , m_MoveUpDown(0.0f)
-        , m_TravelSpeed(12.0f)
-        , m_RotationSpeed(0.004f)
+        , m_TravelSpeed(DEFAULT_TRAVEL_SPEED)
+        , m_RotationSpeed(DEFAULT_ROTATION_SPEED)
     {
         m_View = XMMatrixLookAtLH(m_Eye, m_At, m_Up);
     }
@@ -39,7 +39,7 @@ namespace pr
         return m_Up;
     }
 
-    constexpr const XMMATRIX& Camera::GetView() const noexcept
+    const XMMATRIX& Camera::GetView() const noexcept
     {
         return m_View;
     }
@@ -49,20 +49,25 @@ namespace pr
     //    return m_cbChangeOnCameraMovement;
     //}
 
-    void Camera::HandleInput(_In_ const KeyboardInput& input, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime)
+    void Camera::HandleInput(_In_ const KeyboardInput& input, _In_ const MouseInput& mouseInput, _In_ FLOAT deltaTime)
     {
-        m_MoveBackForward += m_TravelSpeed * deltaTime * (input.IsButtonPressed(VK_UP) - input.IsButtonPressed(VK_DOWN));
-
-        m_MoveLeftRight += m_TravelSpeed * deltaTime * (input.IsButtonPressed(VK_RIGHT)  - input.IsButtonPressed(VK_LEFT));
-
-        m_MoveUpDown += m_TravelSpeed * deltaTime * (input.IsButtonPressed(VK_SPACE) - input.IsButtonPressed(VK_LSHIFT));
-
-        if (mouseRelativeMovement.X != 0 || mouseRelativeMovement.Y != 0)
+        if (!input.IsButtonPressing(VK_CONTROL))
         {
-            m_Yaw += static_cast<FLOAT>(mouseRelativeMovement.X) * m_RotationSpeed;
-            if (m_Pitch + static_cast<FLOAT>(mouseRelativeMovement.Y) * m_RotationSpeed > -XM_PIDIV2 && m_Pitch + static_cast<FLOAT>(mouseRelativeMovement.Y) * m_RotationSpeed < XM_PIDIV2)
+            m_TravelSpeed = std::clamp(m_TravelSpeed + mouseInput.hZDelta * 0.5f, MIN_TRAVEL_SPEED, MAX_TRAVEL_SPEED);
+        }
+
+        m_MoveBackForward += m_TravelSpeed * deltaTime * (input.IsButtonPressing('W') - input.IsButtonPressing('S'));
+
+        m_MoveLeftRight += m_TravelSpeed * deltaTime * (input.IsButtonPressing('D')  - input.IsButtonPressing('A'));
+
+        m_MoveUpDown += m_TravelSpeed * deltaTime * (input.IsButtonPressing(VK_SPACE) - input.IsButtonPressing(VK_SHIFT));
+
+        if (mouseInput.lRelativeX != 0 || mouseInput.lRelativeY != 0)
+        {
+            m_Yaw += static_cast<FLOAT>(mouseInput.lRelativeX) * m_RotationSpeed * deltaTime;
+            if (m_Pitch + static_cast<FLOAT>(mouseInput.lRelativeY) * m_RotationSpeed * deltaTime > -XM_PIDIV2 && m_Pitch + static_cast<FLOAT>(mouseInput.lRelativeY) * m_RotationSpeed * deltaTime < XM_PIDIV2)
             {
-                m_Pitch += static_cast<FLOAT>(mouseRelativeMovement.Y) * m_RotationSpeed;
+                m_Pitch += static_cast<FLOAT>(mouseInput.lRelativeY) * m_RotationSpeed * deltaTime;
             }
         }
     }

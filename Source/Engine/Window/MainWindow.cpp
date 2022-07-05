@@ -7,7 +7,7 @@ namespace pr
     MainWindow::MainWindow(const std::shared_ptr<EventManager>& pEventManager) noexcept
         : m_KeyboardInput()
         , m_pEventManager(pEventManager)
-        , m_MouseRelativeMovement()
+        , m_MouseInput()
         , m_bIsFullscreen(FALSE)
     {
     }
@@ -133,8 +133,8 @@ namespace pr
                     RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawData.get());
                     if (raw->header.dwType == RIM_TYPEMOUSE)
                     {
-                        m_MouseRelativeMovement.X = raw->data.mouse.lLastX;
-                        m_MouseRelativeMovement.Y = raw->data.mouse.lLastY;
+                        m_MouseInput.lRelativeX = raw->data.mouse.lLastX;
+                        m_MouseInput.lRelativeY = raw->data.mouse.lLastY;
 
                         RECT rc;
                         RECT rc2;
@@ -196,6 +196,11 @@ namespace pr
                 OutputDebugString(L" Released!\n");
             }
             break;
+        case WM_MOUSEWHEEL:
+        {
+            m_MouseInput.hZDelta = GET_WHEEL_DELTA_WPARAM(wParam) / 120;
+        }
+        break;
         case WM_SIZE:
         {
             RECT rc = {};
@@ -291,13 +296,13 @@ namespace pr
         return m_KeyboardInput;
     }
 
-    const MouseRelativeMovement& MainWindow::GetMouseRelativeMovement() const
+    const MouseInput& MainWindow::GetMouseInput() const
     {
-        return m_MouseRelativeMovement;
+        return m_MouseInput;
     }
 
     void MainWindow::ResetMouseMovement()
     {
-        memset(&m_MouseRelativeMovement, 0, sizeof(MouseRelativeMovement));
+        memset(&m_MouseInput, 0, sizeof(MouseInput));
     }
 }

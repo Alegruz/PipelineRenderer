@@ -54,13 +54,13 @@ namespace pr
 
         KeyboardInput& GetKeyboardInput() noexcept;
         const KeyboardInput& GetKeyboardInput() const noexcept;
-        const MouseRelativeMovement& GetMouseRelativeMovement() const;
+        const MouseInput& GetMouseInput() const;
         void ResetMouseMovement();
 
     private:
-        KeyboardInput m_KeyboardInput;
-        std::shared_ptr<EventManager> m_pEventManager;
-        MouseRelativeMovement m_MouseRelativeMovement;
+        KeyboardInput m_KeyboardInput;                  // 80
+        std::shared_ptr<EventManager> m_pEventManager;  
+        MouseInput m_MouseInput;
         BOOL m_bIsFullscreen;
     };
     static_assert(sizeof(BaseWindow<MainWindow>) == 48);

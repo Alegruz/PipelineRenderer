@@ -11,6 +11,7 @@
 
 #include "Game/Game.h"
 #include "Graphics/CommandQueue.h"
+#include "Graphics/Model.h"
 #include "Utility/Utility.h"
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -42,9 +43,27 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+    HRESULT hr = S_OK;
+
     std::unique_ptr<pr::Game> pGame = std::make_unique<pr::Game>(L"Pipeline Renderer");
 
-    HRESULT hr = pGame->Initialize(hInstance, nCmdShow);
+    std::unique_ptr<pr::Scene> pScene = std::make_unique<pr::Scene>();
+    std::shared_ptr<pr::BaseCube> pCube = std::make_unique<pr::BaseCube>();
+    
+    hr = pScene->AddRenderable(L"Cube", pCube);
+    CHECK_AND_RETURN_HRESULT(hr, L"Adding cube to scene");
+
+    std::shared_ptr<pr::Model> pModel = std::make_shared<pr::Model>(L"Contents/Sponza/sponza.obj");
+    //std::shared_ptr<pr::Model> pModel = std::make_shared<pr::Model>(L"Contents/Main/NewSponza_Main_FBX_YUp.fbx");
+    pModel->Scale(0.1f, 0.1f, 0.1f);
+
+    hr = pScene->AddRenderable(L"Model", pModel);
+    CHECK_AND_RETURN_HRESULT(hr, L"Adding sponza model to scene");
+
+    hr = pGame->AddScene(std::move(pScene));
+    CHECK_AND_RETURN_HRESULT(hr, L"Adding scene");
+
+    hr = pGame->Initialize(hInstance, nCmdShow);
     CHECK_AND_RETURN_HRESULT(hr, L"Game Initialization");
 
     return pGame->Run();

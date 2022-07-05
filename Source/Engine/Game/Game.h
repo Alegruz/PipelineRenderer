@@ -15,7 +15,7 @@
 
 #include "Event/EventManager.h"
 #include "Graphics/Renderer.h"
-//#include "Scene/Scene.h"
+#include "Scene/Scene.h"
 #include "Window/MainWindow.h"
 
 namespace pr
@@ -59,18 +59,16 @@ namespace pr
         HRESULT Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow);
         INT Run();
 
-        PCWSTR GetGameName() const;
-        constexpr std::unique_ptr<MainWindow>& GetWindow() noexcept;
-        std::unique_ptr<Renderer>& GetRenderer();
+        HRESULT AddScene(std::unique_ptr<Scene>&& pScene) noexcept;
 
     private:
-        std::shared_ptr<EventManager> m_pEventManager;      // 16
+        std::shared_ptr<EventManager> m_pEventManager;      // 16   >>  16
 
-        PCWSTR m_pszGameName;                               // 24
-        std::unique_ptr<MainWindow> m_pMainWindow;          // 32
-        std::unique_ptr<Renderer> m_pRenderer;              // 40
-        //std::unordered_map<std::wstring, std::unique_ptr<Scene>> m_scenes;
-        PCWSTR m_pszMainSceneName;                          // 48
+        PCWSTR m_pszGameName;                               // 8    >>  24
+        std::unique_ptr<MainWindow> m_pMainWindow;          // 8    >>  32
+        std::unique_ptr<Renderer> m_pRenderer;              // 8    >>  40
+        std::unique_ptr<Scene> m_pScene;                    // 8    >>  48
+        UINT64 m_uNumFrames;                                // 8    >>  56
     };
-    static_assert(sizeof(Game) == 48);
+    static_assert(sizeof(Game) == 56);
 }

@@ -92,9 +92,9 @@ namespace pr
 		hr = pCommandList->Close();
 		CHECK_AND_RETURN_HRESULT(hr, L"CommandQueue::ExecuteCommandList >> Closing command list");
 
-		ComPtr<ID3D12CommandAllocator> pCommandAllocator;
+		ID3D12CommandAllocator* pCommandAllocator;
 		UINT uDataSize = sizeof(ID3D12CommandAllocator);
-		hr = pCommandList->GetPrivateData(__uuidof(ID3D12CommandAllocator), &uDataSize, pCommandAllocator.GetAddressOf());
+		hr = pCommandList->GetPrivateData(__uuidof(ID3D12CommandAllocator), &uDataSize, &pCommandAllocator);
 		CHECK_AND_RETURN_HRESULT(hr, L"CommandQueue::ExecuteCommandList >> Getting private data");
 
 		ID3D12CommandList* const ppCommandLists[] =
@@ -103,7 +103,8 @@ namespace pr
 		};
 
 		m_pCommandQueue->ExecuteCommandLists(1u, ppCommandLists);
-		uOutFenceValue = Signal();
+		hr = Signal(uOutFenceValue);
+		CHECK_AND_RETURN_HRESULT(hr, L"CommandQueue::ExecuteCommandList >> Signal");
 
 		m_CommandAllocatorQueue.emplace(CommandAllocatorEntry{ .uFenceValue = uOutFenceValue, .pCommandAllocator = pCommandAllocator });
 		m_CommandListQueue.push(pCommandList);
@@ -116,29 +117,44 @@ namespace pr
 		return hr;
 	}
 
-	UINT64 CommandQueue::Signal() noexcept
+	HRESULT CommandQueue::Signal(_Out_ UINT64& uOutFenceValue) noexcept
 	{
-		return UINT64();
+		HRESULT hr = S_OK;
+
+		uOutFenceValue = ++m_uFenceValue;
+		hr = m_pCommandQueue->Signal(m_pFence.Get(), uOutFenceValue);
+		CHECK_AND_RETURN_HRESULT(hr, L"CommandQueue::Signal >> Command Queue Signal");
+
+		return hr;
 	}
 
 	BOOL CommandQueue::IsFenceComplete(UINT64 uFenceValue) noexcept
 	{
-		UNREFERENCED_PARAMETER(uFenceValue);
-		return 0;
+		return m_pFence->GetCompletedValue() >= uFenceValue;
 	}
 
 	void CommandQueue::WaitForFenceValue(UINT64 uFenceValue) noexcept
 	{
-		UNREFERENCED_PARAMETER(uFenceValue);
+		if (!IsFenceComplete(uFenceValue))
+		{
+			m_pFence->SetEventOnCompletion(uFenceValue, m_FenceEvent);
+			::WaitForSingleObject(m_FenceEvent, DWORD_MAX);
+		}
 	}
 
-	void CommandQueue::Flush() noexcept
+	HRESULT CommandQueue::Flush() noexcept
 	{
+		HRESULT hr = S_OK;
+		UINT64 uFenceValue = 0u;
+		hr = Signal(uFenceValue);
+		CHECK_AND_RETURN_HRESULT(hr, L"CommandQueue::Flush >> Signal");
+
+		WaitForFenceValue(uFenceValue);
+		return hr;
 	}
 
 	const ComPtr<ID3D12CommandQueue>& CommandQueue::GetD3D12CommandQueue() const noexcept
 	{
-		// // O: insert return statement here
 		return m_pCommandQueue;
 	}
 
@@ -159,8 +175,8 @@ namespace pr
 		hr = m_pDevice->CreateCommandList(0u, m_CommandListType, pCommandAllocator, nullptr, IID_PPV_ARGS(&pOutCommandList));
 		CHECK_AND_RETURN_HRESULT(hr, L"Renderer::CreateCommandList >> Command List Creation");
 
-		hr = pOutCommandList->Close();
-		CHECK_AND_RETURN_HRESULT(hr, L"Renderer::CreateCommandList >> Command List Closing");
+		//hr = pOutCommandList->Close();
+		//CHECK_AND_RETURN_HRESULT(hr, L"Renderer::CreateCommandList >> Command List Closing");
 
 		return hr;
 	}

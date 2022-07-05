@@ -29,6 +29,18 @@
     <Filter Include="Source Codes\Event">
       <UniqueIdentifier>{d241074c-4a92-4d34-a432-189225af409f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Codes\Shader">
+      <UniqueIdentifier>{c4aa8419-3be5-4935-b853-405748d64b4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{c8a354e0-764e-47b6-a991-ebdd5a610384}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Scene">
+      <UniqueIdentifier>{82b0e53c-4fd8-4868-b66d-5acc6a1ed8ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Texture">
+      <UniqueIdentifier>{d8edc6ae-8b5e-4fef-a3ee-fb12d6cfcd53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp">
@@ -65,6 +77,24 @@
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\GraphicsCommon.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Scene.cpp">
+      <Filter>Source Codes\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\Material.cpp">
+      <Filter>Source Codes\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\Texture.cpp">
+      <Filter>Source Codes\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\DDSTextureLoader.cpp">
+      <Filter>Source Codes\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\WICTextureLoader.cpp">
+      <Filter>Source Codes\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -120,6 +150,24 @@
     <ClInclude Include="Graphics\GraphicsCommon.h">
       <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Scene\Scene.h">
+      <Filter>Source Codes\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\Material.h">
+      <Filter>Source Codes\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\Texture.h">
+      <Filter>Source Codes\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\DDSTextureLoader.h">
+      <Filter>Source Codes\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\WICTextureLoader.h">
+      <Filter>Source Codes\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -130,5 +178,13 @@
     <Image Include="directx.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

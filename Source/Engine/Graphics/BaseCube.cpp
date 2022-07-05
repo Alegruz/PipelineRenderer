@@ -1,15 +1,22 @@
+#include "pch.h"
+
 #include "Graphics/BaseCube.h"
 
 namespace pr
 {
     BaseCube::BaseCube() noexcept
-        : Renderable(eVertexType::POS_COLOR)
+        : Renderable(eVertexType::POS_NORM_TEXCOORD)
     {
     }
 
-    HRESULT BaseCube::Initialize(_In_ ID3D12Device* pDevice)
+    HRESULT BaseCube::Initialize(_In_ ID3D12Device2* pDevice, _In_ ID3D12GraphicsCommandList2* pCommandList)
     {
-        return initialize(pDevice);
+        BasicMeshEntry basicMeshEntry;
+        basicMeshEntry.uNumIndices = NUM_INDICES;
+
+        m_aMeshes.push_back(basicMeshEntry);
+
+        return initialize(pDevice, pCommandList);
     }
 
     void BaseCube::Update(FLOAT deltaTime)

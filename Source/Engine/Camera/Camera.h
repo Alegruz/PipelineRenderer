@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Graphics/DataTypes.h"
+//#include "Graphics/DataTypes.h"
 #include "Input/Input.h"
 
 namespace pr
@@ -41,6 +41,13 @@ namespace pr
     class Camera
     {
     public:
+        struct ConstantBuffer
+        {
+            XMMATRIX View;
+            XMFLOAT4 Position;
+        };
+
+    public:
         Camera() = delete;
         Camera(_In_ const XMVECTOR& position);
         Camera(const Camera& other) = delete;
@@ -52,16 +59,22 @@ namespace pr
         const XMVECTOR& GetEye() const;
         const XMVECTOR& GetAt() const;
         const XMVECTOR& GetUp() const;
-        constexpr const XMMATRIX& GetView() const noexcept;
-        //ComPtr<ID3D11Buffer>& GetConstantBuffer();
+        const XMMATRIX& GetView() const noexcept;
+        //ConstantBuffer GetConstantBuffer() const noexcept;
 
-        virtual void HandleInput(_In_ const KeyboardInput& Input, _In_ const MouseRelativeMovement& MouseRelativeMovement, _In_ FLOAT deltaTime);
+        virtual void HandleInput(_In_ const KeyboardInput& Input, _In_ const MouseInput& MouseRelativeMovement, _In_ FLOAT deltaTime);
         //virtual HRESULT Initialize(_In_ ID3D11Device* device, _In_ ID3D11DeviceContext* pImmediateContext);
         virtual void Update(_In_ FLOAT deltaTime);
     protected:
         static constexpr const XMVECTORF32 DEFAULT_FORWARD = { 0.0f, 0.0f, 1.0f, 0.0f };
         static constexpr const XMVECTORF32 DEFAULT_RIGHT = { 1.0f, 0.0f, 0.0f, 0.0f };
         static constexpr const XMVECTORF32 DEFAULT_UP = { 0.0f, 1.0f, 0.0f, 0.0f };
+        static constexpr const FLOAT MAX_TRAVEL_SPEED = 128.0f;
+        static constexpr const FLOAT DEFAULT_TRAVEL_SPEED = 12.0f;
+        static constexpr const FLOAT MIN_TRAVEL_SPEED = 1.0f;
+        //static constexpr const FLOAT MAX_ROTATION_SPEED = 1.0f;
+        static constexpr const FLOAT DEFAULT_ROTATION_SPEED = 0.5f;
+        //static constexpr const FLOAT MIN_ROTATION_SPEED = 0.0004f;
 
     //    ComPtr<ID3D11Buffer> m_cbChangeOnCameraMovement;
 

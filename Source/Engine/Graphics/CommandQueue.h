@@ -20,10 +20,10 @@ namespace pr
 		HRESULT GetCommandList(_Out_ ComPtr<ID3D12GraphicsCommandList2>& pOutCommandList) noexcept;
 		HRESULT ExecuteCommandList(_Out_ UINT64& uOutFenceValue, _In_ ID3D12GraphicsCommandList2* pCommandList) noexcept;
 
-		UINT64 Signal() noexcept;
+		HRESULT Signal(_Out_ UINT64& uOutFenceValue) noexcept;
 		BOOL IsFenceComplete(_In_ UINT64 uFenceValue) noexcept;
 		void WaitForFenceValue(_In_ UINT64 uFenceValue) noexcept;
-		void Flush() noexcept;
+		HRESULT Flush() noexcept;
 
 		const ComPtr<ID3D12CommandQueue>& GetD3D12CommandQueue() const noexcept;
 

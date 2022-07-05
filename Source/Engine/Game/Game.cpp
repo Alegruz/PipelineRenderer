@@ -22,8 +22,8 @@ namespace pr
         , m_pszGameName(pszGameName)
         , m_pMainWindow(std::make_unique<MainWindow>(m_pEventManager))
         , m_pRenderer(std::make_unique<Renderer>())
-        //, m_scenes()
-        , m_pszMainSceneName(nullptr)
+        , m_pScene(std::make_unique<Scene>())
+        , m_uNumFrames(0u)
     {
     }
 
@@ -51,11 +51,18 @@ namespace pr
         // be rendered in a DPI sensitive fashion.
         SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
+        HRESULT hr = S_OK;
+        
+        if (!m_pScene)
+        {
+            hr = E_FAIL;
+            CHECK_AND_RETURN_HRESULT(hr, L"Game::Initialize >> Scene is nullptr");
+        }
 
-        HRESULT hr = m_pMainWindow->Initialize(hInstance, nCmdShow, m_pszGameName);
+        hr = m_pMainWindow->Initialize(hInstance, nCmdShow, m_pszGameName);
         CHECK_AND_RETURN_HRESULT(hr, L"Game::Initialize >> MainWindow::Initialize");
 
-        hr = m_pRenderer->Initialize(m_pMainWindow->GetWindow());
+        hr = m_pRenderer->Initialize(m_pMainWindow->GetWindow(), m_pScene);
         CHECK_AND_RETURN_HRESULT(hr, L"Game::Initialize >> Renderer::Initialize");
 
         return hr;
@@ -80,6 +87,8 @@ namespace pr
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&startingTime);
 
+        WCHAR szDebugMsg[64] = { L'\0', };
+        DOUBLE averageDeltaTime = 0.0;
         while (WM_QUIT != msg.message)
         {
             if (PeekMessage(&msg, nullptr, 0u, 0u, PM_REMOVE))
@@ -98,6 +107,9 @@ namespace pr
                 QueryPerformanceCounter(&startingTime);
 
                 FLOAT deltaTime = static_cast<FLOAT>(elapsedMicroseconds.QuadPart) / 1000000.0f;
+                //FLOAT fps = 1.0f / deltaTime;
+                //swprintf_s(szDebugMsg, L"FPS: %f\n", fps);
+                //OutputDebugString(szDebugMsg);
 
                 size_t uNumEvents = m_pEventManager->GetSize();
                 EventMessage* pEventMessages = m_pEventManager->GetEvents();
@@ -116,52 +128,34 @@ namespace pr
                     }
                 }
 
-                m_pRenderer->HandleInput(m_pMainWindow->GetKeyboardInput(), m_pMainWindow->GetMouseRelativeMovement(), deltaTime);
+                m_pRenderer->HandleInput(m_pMainWindow->GetKeyboardInput(), m_pMainWindow->GetMouseInput(), deltaTime);
                 m_pMainWindow->ResetMouseMovement();
                 m_pRenderer->Update(deltaTime);
-                m_pRenderer->Render();
+                if (FAILED(m_pRenderer->Render(m_pScene)))
+                {
+                    PostQuitMessage(0);
+                }
+
+                ++m_uNumFrames;
+                averageDeltaTime += deltaTime;
             }
         }
+        averageDeltaTime /= m_uNumFrames;
+        swprintf_s(szDebugMsg, L"Average Delta Time: %lf, Average FPS: %lf\n", averageDeltaTime, 1.0 / averageDeltaTime);
+        OutputDebugString(szDebugMsg);
 
         return static_cast<INT>(msg.wParam);
     }
 
-    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-      Method:   Game::GetGameName
-
-      Summary:  Returns the name of the game
-
-      Returns:  PCWSTR
-                  Name of the game
-    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    PCWSTR Game::GetGameName() const
+    HRESULT Game::AddScene(std::unique_ptr<Scene>&& pScene) noexcept
     {
-        return m_pszGameName;
-    }
+        if (!pScene)
+        {
+            return E_INVALIDARG;
+        }
 
-    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-      Method:   Game::GetWindow
+        m_pScene = std::move(pScene);
 
-      Summary:  Returns the main window
-
-      Returns:  std::unique_ptr<MainWindow>&
-                  The main window
-    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    constexpr std::unique_ptr<MainWindow>& Game::GetWindow() noexcept
-    {
-        return m_pMainWindow;
-    }
-
-    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-      Method:   Game::GetRenderer
-
-      Summary:  Returns the renderer
-
-      Returns:  std::unique_ptr<Renderer>&
-                  The renderer
-    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    std::unique_ptr<Renderer>& Game::GetRenderer()
-    {
-        return m_pRenderer;
+        return S_OK;
     }
 }

@@ -21,7 +21,7 @@
 //#include "Model/Model.h"
 //#include "Renderer/DataTypes.h"
 //#include "Renderer/Renderable.h"
-//#include "Scene/Scene.h"
+#include "Scene/Scene.h"
 //#include "Shader/PixelShader.h"
 //#include "Shader/VertexShader.h"
 //#include "Texture/RenderTexture.h"
@@ -60,11 +60,11 @@ namespace pr
         Renderer& operator=(Renderer&& other) = delete;
         ~Renderer() noexcept;
 
-        HRESULT Initialize(_In_ HWND hWnd);
+        HRESULT Initialize(_In_ HWND hWnd, _In_ std::unique_ptr<Scene>& pScene) noexcept;
 
-        void HandleInput(_In_ KeyboardInput& input, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime);
+        void HandleInput(_In_ KeyboardInput& input, _In_ const MouseInput& mouseInput, _In_ FLOAT deltaTime);
         void Update(_In_ FLOAT deltaTime);
-        void Render();
+        HRESULT Render(_In_ const std::unique_ptr<Scene>& pScene);
 
         HRESULT Resize(UINT uWidth, UINT uHeight) noexcept;
 
@@ -72,8 +72,12 @@ namespace pr
 
         static constexpr const size_t NUM_FRAMEBUFFERS = 3;
 
-    private:
+    protected:
         BOOL checkTearingSupport() const noexcept;
+        HRESULT flush() noexcept;
+        D3D12_CPU_DESCRIPTOR_HANDLE getCurrentRtv() const noexcept;
+        HRESULT present(_Out_ UINT& uOutCurrentBackBufferIndex) noexcept;
+        HRESULT resizeDepthBuffer(UINT uWidth, UINT uHeight) noexcept;
 
     private:
         Camera m_Camera;                                                        // 272      >>  272
@@ -86,8 +90,8 @@ namespace pr
         ComPtr<ID3D12DescriptorHeap> m_pRtvDescriptorHeap;                      // 8 + 8    >>  384
         ComPtr<ID3D12Resource> m_pDepthBuffer;                                  // 8 + 0    >>  400
         ComPtr<ID3D12DescriptorHeap> m_pDsvDescriptorHeap;                      // 8 + 8    >>  400
-        ComPtr<ID3D12RootSignature> m_RootSignature;                            // 8 + 0    >>  416
-        ComPtr<ID3D12PipelineState> m_PipelineState;                            // 8 + 8    >>  416
+        ComPtr<ID3D12RootSignature> m_pRootSignature;                           // 8 + 0    >>  416
+        ComPtr<ID3D12PipelineState> m_pPipelineState;                           // 8 + 8    >>  416
 
         std::shared_ptr<CommandQueue> m_pDirectCommandQueue;                    // 16 + 0   >>  432
         std::shared_ptr<CommandQueue> m_pComputeCommandQueue;                   // 16 + 0   >>  448
@@ -104,7 +108,7 @@ namespace pr
 
         UINT64 m_auFrameFenceValues[NUM_FRAMEBUFFERS];                          // 8 + 8    >>  528 >>  16 + 0   >> 544
 
-        std::shared_ptr<BaseCube> m_pBaseCube;                                  // 16 + 0   >>  560
+        //std::shared_ptr<BaseCube> m_pBaseCube;                                  // 16 + 0   >>  560
 
         UINT m_uWidth;                                                          // 4 + 0    >>  576
         UINT m_uHeight;                                                         // 4 + 4    >>  576
@@ -115,5 +119,5 @@ namespace pr
         BOOL m_bIsFullScreen;                                                   // 4 + 4    >>  592
     };
     static_assert(sizeof(Renderer) % 16 == 0);
-    static_assert(sizeof(Renderer) == 592);
+    static_assert(sizeof(Renderer) == 576);
 }

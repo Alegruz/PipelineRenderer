@@ -8,16 +8,18 @@ namespace pr
 	  Class:    MouseRelativeMovement
 	  Summary:  Data structure that stores mouse relative movement data
 	S---S---S---S---S---S---S---S---S---S---S---S---S---S---S---S---S-S*/
-	struct MouseRelativeMovement
+	struct MouseInput
 	{
-		explicit constexpr MouseRelativeMovement() noexcept
-			: X(0)
-			, Y(0)
+		explicit constexpr MouseInput() noexcept
+			: lRelativeX(0)
+			, lRelativeY(0)
+			, hZDelta(0)
 		{
 		}
 
-		LONG X;
-		LONG Y;
+		LONG lRelativeX;
+		LONG lRelativeY;
+		SHORT hZDelta;
 	};
 
 	class KeyboardInput final
@@ -44,4 +46,5 @@ namespace pr
 		UINT64 m_KeyboardInputPersistent[4];
 		UINT64 m_KeyboardInput[4];
 	};
+	static_assert(sizeof(KeyboardInput) == 64);
 }

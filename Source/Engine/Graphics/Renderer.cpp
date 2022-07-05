@@ -1,8 +1,9 @@
 #include "pch.h"
 
+#include "Graphics/Renderer.h"
+
 #include "Graphics/CommandQueue.h"
 #include "Graphics/GraphicsCommon.h"
-#include "Graphics/Renderer.h"
 #include "Utility/Utility.h"
 
 namespace pr
@@ -29,8 +30,8 @@ namespace pr
         , m_pRtvDescriptorHeap()
         , m_pDepthBuffer()
         , m_pDsvDescriptorHeap()
-        , m_RootSignature()
-        , m_PipelineState()
+        , m_pRootSignature()
+        , m_pPipelineState()
         , m_pDirectCommandQueue()
         , m_pComputeCommandQueue()
         , m_pCopyCommandQueue()
@@ -41,7 +42,7 @@ namespace pr
         , m_DriverType(D3D_DRIVER_TYPE_UNKNOWN)
         , m_FeatureLevel(D3D_FEATURE_LEVEL_12_1)
         , m_auFrameFenceValues{}
-        , m_pBaseCube(std::make_shared<BaseCube>())
+        //, m_pBaseCube(std::make_shared<BaseCube>())
         , m_uWidth(DEFAULT_WIDTH)
         , m_uHeight(DEFAULT_HEIGHT)
         , m_FoV(45.0f)
@@ -55,8 +56,7 @@ namespace pr
 
     Renderer::~Renderer() noexcept
     {
-        Flush(m_uFenceValue, m_pCommandQueue.Get(), m_pFence.Get(), m_FenceEvent);
-        ::CloseHandle(m_FenceEvent);
+        flush();
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -75,7 +75,7 @@ namespace pr
       Returns:  HRESULT
                   Status code
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    HRESULT Renderer::Initialize(_In_ HWND hWnd)
+    HRESULT Renderer::Initialize(_In_ HWND hWnd, _In_ std::unique_ptr<Scene>& pScene) noexcept
     {
         HRESULT hr = S_OK;
 
@@ -182,7 +182,7 @@ namespace pr
 
         // Describe and create the swap chain
         m_bIsTearingSupported = checkTearingSupport();
-        hr = CreateSwapChain(m_pSwapChain, hWnd, pDxgiFactory.Get(), m_pCommandQueue.Get(), m_uWidth, m_uHeight, NUM_FRAMEBUFFERS, m_bIsTearingSupported);
+        hr = CreateSwapChain(m_pSwapChain, hWnd, pDxgiFactory.Get(), m_pDirectCommandQueue->GetD3D12CommandQueue().Get(), m_uWidth, m_uHeight, NUM_FRAMEBUFFERS, m_bIsTearingSupported);
         CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Swap Chain Creation");
 
         hr = CreateDescriptorHeap(m_pRtvDescriptorHeap, m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_FRAMEBUFFERS);
@@ -192,21 +192,7 @@ namespace pr
         hr = UpdateRenderTargetViews(m_apBackBuffers, NUM_FRAMEBUFFERS, m_pDevice.Get(), m_pSwapChain.Get(), m_pRtvDescriptorHeap.Get());
         CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Update RTV");
 
-        // Create depth stencil texture
-        hr = CreateDescriptorHeap(m_pDsvDescriptorHeap, m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1u);
-
-        // Create the depth stencil view
-        //D3D11_DEPTH_STENCIL_VIEW_DESC descDSV =
-        //{
-        //    .Format = descDepth.Format,
-        //    .ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D,
-        //    .Texture2D = {.MipSlice = 0 }
-        //};
-        //hr = m_d3dDevice->CreateDepthStencilView(m_depthStencil.Get(), &descDSV, m_depthStencilView.GetAddressOf());
-        //if (FAILED(hr))
-        //{
-        //    return hr;
-        //}
+        
 
         //m_immediateContext->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
 
@@ -277,11 +263,140 @@ namespace pr
         //    return E_FAIL;
         //}
 
-        //hr = m_scenes[m_pszMainSceneName]->Initialize(m_d3dDevice.Get(), m_immediateContext.Get());
-        //if (FAILED(hr))
-        //{
-        //    return hr;
-        //}
+        // Load the vertex shader
+        ComPtr<ID3DBlob> pVertexShaderBlob;
+        hr = D3DReadFileToBlob(L"Contents/Shaders/VertexShader.cso", &pVertexShaderBlob);
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Reading vertex shader");
+
+        // Load the pixel shader
+        ComPtr<ID3DBlob> pPixelShaderBlob;
+        hr = D3DReadFileToBlob(L"Contents/Shaders/PixelShader.cso", &pPixelShaderBlob);
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Reading pixel shader");
+
+        // Create the vertex input layout
+        D3D12_INPUT_ELEMENT_DESC aInputLayout[] =
+        {
+            {
+                .SemanticName = "POSITION",
+                .SemanticIndex = 0,
+                .Format = DXGI_FORMAT_R32G32B32_FLOAT,
+                .InputSlot = 0,
+                .AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT,
+                .InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+                .InstanceDataStepRate = 0,
+            },
+            {
+                .SemanticName = "NORMAL",
+                .SemanticIndex = 0,
+                .Format = DXGI_FORMAT_R32G32B32_FLOAT,
+                .InputSlot = 0,
+                .AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT,
+                .InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+                .InstanceDataStepRate = 0,
+            },
+            {
+                .SemanticName = "TEXCOORD",
+                .SemanticIndex = 0,
+                .Format = DXGI_FORMAT_R32G32_FLOAT,
+                .InputSlot = 0,
+                .AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT,
+                .InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+                .InstanceDataStepRate = 0,
+            },
+        };
+
+        // Create a root signature
+        D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData =
+        {
+            .HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1,
+        };
+        hr = m_pDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData));
+        if (FAILED(hr))
+        {
+            featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+        }
+
+        // Allow input layout and deny unnecessary access to certain pipeline stages
+        D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+        // A single 32-bit constant root parameter that is used by the vertex shader
+        CD3DX12_ROOT_PARAMETER1 aRootParameters[3] = {};
+        aRootParameters[0].InitAsConstants((sizeof(XMMATRIX) + sizeof(XMFLOAT4)) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+        aRootParameters[1].InitAsConstants(sizeof(XMMATRIX) / 4, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+        aRootParameters[2].InitAsConstants(sizeof(XMMATRIX) / 4, 2, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
+        rootSignatureDesc.Init_1_1(ARRAYSIZE(aRootParameters), aRootParameters, 0, nullptr, rootSignatureFlags);
+
+        // Serialize the root signature
+        ComPtr<ID3DBlob> pRootSignatureBlob;
+        ComPtr<ID3DBlob> pErrorBlob;
+        hr = D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &pRootSignatureBlob, &pErrorBlob);
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Serializing versioned root signature");
+
+        // Create the root signature
+        hr = m_pDevice->CreateRootSignature(0, pRootSignatureBlob->GetBufferPointer(), pRootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature));
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Creating root signature");
+
+        struct PipelineStateStream
+        {
+            CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE pRootSignature;
+            CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
+            CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
+            CD3DX12_PIPELINE_STATE_STREAM_VS VertexShader;
+            CD3DX12_PIPELINE_STATE_STREAM_PS PixelShader;
+            CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DsvFormat;
+            CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RtvFormats;
+        };
+
+        D3D12_RT_FORMAT_ARRAY rtvFormats =
+        {
+            .RTFormats = { DXGI_FORMAT_R8G8B8A8_UNORM },
+            .NumRenderTargets = 1,
+        };
+
+        PipelineStateStream pipelineStateStream =
+        {
+            .pRootSignature = m_pRootSignature.Get(),
+            .InputLayout = D3D12_INPUT_LAYOUT_DESC{ .pInputElementDescs = aInputLayout, .NumElements = ARRAYSIZE(aInputLayout) },
+            .PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+            .VertexShader = CD3DX12_SHADER_BYTECODE(pVertexShaderBlob.Get()),
+            .PixelShader = CD3DX12_SHADER_BYTECODE(pPixelShaderBlob.Get()),
+            .DsvFormat = DXGI_FORMAT_D32_FLOAT,
+            .RtvFormats = rtvFormats
+        };
+
+        D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc =
+        {
+            .SizeInBytes = sizeof(PipelineStateStream),
+            .pPipelineStateSubobjectStream = &pipelineStateStream
+        };
+        hr = m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&m_pPipelineState));
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Creating pipeline state");
+
+        ComPtr<ID3D12GraphicsCommandList2> pCommandList;
+        hr = m_pCopyCommandQueue->GetCommandList(pCommandList);
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Getting command list from direct command queue");
+
+        hr = pScene->Initialize(m_pDevice.Get(), pCommandList.Get());
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Initializing scene");
+
+        UINT64 uFenceValue = 0u;
+        hr = m_pCopyCommandQueue->ExecuteCommandList(uFenceValue, pCommandList.Get());
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Executing direct command");
+
+        m_pCopyCommandQueue->WaitForFenceValue(uFenceValue);
+
+        // Resize / create the depth buffer
+        hr = CreateDescriptorHeap(m_pDsvDescriptorHeap, m_pDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1u);
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Creating descriptor heap for DSV");
+
+        resizeDepthBuffer(m_uWidth, m_uHeight);
 
         //hr = m_invalidTexture->Initialize(m_d3dDevice.Get(), m_immediateContext.Get());
         //if (FAILED(hr))
@@ -300,9 +415,6 @@ namespace pr
         //{
         //    m_scenes[m_pszMainSceneName]->GetPointLight(i)->Initialize(m_uWidth, m_uHeight);
         //}
-
-        hr = m_pBaseCube->Initialize(m_pDevice.Get());
-        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Initializing base cube");
 
         return S_OK;
     }
@@ -347,7 +459,7 @@ namespace pr
     //    m_shadowPixelShader = move(pixelShader);
     //}
 
-    void Renderer::HandleInput(_In_ KeyboardInput& input, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime)
+    void Renderer::HandleInput(_In_ KeyboardInput& input, _In_ const MouseInput& mouseInput, _In_ FLOAT deltaTime)
     {
         if (input.IsButtonPressed('V'))
         {
@@ -365,7 +477,7 @@ namespace pr
             }
         }
 
-        m_Camera.HandleInput(input, mouseRelativeMovement, deltaTime);
+        m_Camera.HandleInput(input, mouseInput, deltaTime);
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -388,53 +500,80 @@ namespace pr
 
       Summary:  Render the frame
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    void Renderer::Render()
+    HRESULT Renderer::Render(const std::unique_ptr<Scene>& pScene)
     {
-        ID3D12CommandAllocator* pCommandAllocator = m_apCommandAllocators[m_uCurrentBackBufferIndex].Get();
-        ID3D12Resource* pBackBuffer = m_apBackBuffers[m_uCurrentBackBufferIndex].Get();
+        HRESULT hr = S_OK;
+        ComPtr<ID3D12GraphicsCommandList2> pCommandList;
+        hr = m_pDirectCommandQueue->GetCommandList(pCommandList);
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Render >> Getting command list");
 
-        // Prepare the command list for recording
-        pCommandAllocator->Reset();
-        m_pCommandList->Reset(pCommandAllocator, nullptr);
+        UINT uCurrentBackBufferIndex = m_uCurrentBackBufferIndex;
+        ID3D12Resource* pBackBuffer = m_apBackBuffers[m_uCurrentBackBufferIndex].Get();
+        D3D12_CPU_DESCRIPTOR_HANDLE rtv = getCurrentRtv();
+        D3D12_CPU_DESCRIPTOR_HANDLE dsv = m_pDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
         // Clear
         {
             // Transit to RENDER_TARGET state
-            CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(pBackBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-            m_pCommandList->ResourceBarrier(1u, &barrier);
+            TransitResource(pCommandList.Get(), pBackBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
             static constexpr const FLOAT CLEAR_COLOR[] = { 0.4f, 0.6f, 0.9f, 1.0f };
-            CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_uCurrentBackBufferIndex, m_uRtvDescriptorSize);
+            
+            ClearRtv(pCommandList.Get(), rtv, CLEAR_COLOR);
+            ClearDepth(pCommandList.Get(), dsv);
+        }
 
-            m_pCommandList->ClearRenderTargetView(rtv, CLEAR_COLOR, 0u, nullptr);
+        pCommandList->SetPipelineState(m_pPipelineState.Get());
+        pCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+        pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        pCommandList->RSSetViewports(1, &m_Viewport);
+        pCommandList->RSSetScissorRects(1, &m_ScissorsRect);
+
+        pCommandList->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
+
+        Camera::ConstantBuffer cbCamera =
+        {
+            .View = m_Camera.GetView(),
+        };
+        XMStoreFloat4(&cbCamera.Position, m_Camera.GetAt());
+
+        pCommandList->SetGraphicsRoot32BitConstants(0, (sizeof(XMMATRIX) + sizeof(XMFLOAT4)) / 4, &cbCamera, 0);
+        pCommandList->SetGraphicsRoot32BitConstants(1, (sizeof(XMMATRIX)) / 4, &m_Projection, 0);
+
+        for (auto& iter : pScene->GetRenderables())
+        {
+            pCommandList->IASetVertexBuffers(0, 1, &iter.second->GetVertexBufferView());
+            pCommandList->IASetIndexBuffer(&iter.second->GetIndexBufferView());
+
+            pCommandList->SetGraphicsRoot32BitConstants(2, (sizeof(XMMATRIX)) / 4, &iter.second->GetWorldMatrix(), 0);
+
+            for (UINT i = 0u; i < iter.second->GetNumMeshes(); ++i)
+            {
+                pCommandList->DrawIndexedInstanced(
+                    iter.second->GetMesh(i).uNumIndices,
+                    1, 
+                    iter.second->GetMesh(i).uBaseIndex,
+                    iter.second->GetMesh(i).uBaseVertex,
+                    0
+                );
+            }
         }
 
         // Present
         {
-            CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(pBackBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+            TransitResource(pCommandList.Get(), pBackBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
-            m_pCommandList->ResourceBarrier(1u, &barrier);
+            hr = m_pDirectCommandQueue->ExecuteCommandList(m_auFrameFenceValues[uCurrentBackBufferIndex], pCommandList.Get());
+            CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Render >> Executing direct command queue");
 
-            AssertHresult(m_pCommandList->Close(), L"Renderer::Render >> Closing command list");
+            hr = present(uCurrentBackBufferIndex);
+            CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Render >> Presenting");
 
-            ID3D12CommandList* const apCommandLists[] =
-            {
-                m_pCommandList.Get(),
-            };
-            m_pCommandQueue->ExecuteCommandLists(ARRAYSIZE(apCommandLists), apCommandLists);
-
-            UINT uSyncInterval = m_bIsVSyncEnabled ? 1u : 0u;
-            UINT uPresentFlags = m_bIsTearingSupported && !m_bIsVSyncEnabled ? DXGI_PRESENT_ALLOW_TEARING : 0u;
-            AssertHresult(m_pSwapChain->Present(uSyncInterval, uPresentFlags), L"Renderer::Render >> Present Swap Chain");
-
-            AssertHresult(Signal(m_uFenceValue, m_pCommandQueue.Get(), m_pFence.Get()), L"Renderer::Render >> Signal");
-            m_auFrameFenceValues[m_uCurrentBackBufferIndex] = m_uFenceValue;
-
-            m_uCurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-
-            WaitForFenceValue(m_pFence.Get(), m_auFrameFenceValues[m_uCurrentBackBufferIndex], m_FenceEvent);
+            m_pDirectCommandQueue->WaitForFenceValue(m_auFrameFenceValues[uCurrentBackBufferIndex]);
         }
+
+        return hr;
     }
 
     HRESULT Renderer::Resize(UINT uWidth, UINT uHeight) noexcept
@@ -454,15 +593,14 @@ namespace pr
 
             // Flush the GPU queue to make sure the swap chain's back buffers
             // are not being referenced by an in-flight command list.
-            hr = Flush(m_uFenceValue, m_pCommandQueue.Get(), m_pFence.Get(), m_FenceEvent);
-            CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Resize >> Flush");
+            flush();
 
             for (size_t i = 0; i < NUM_FRAMEBUFFERS; ++i)
             {
                 // Any references to the back buffers must be released
                 // before the swap chain can be resized.
                 m_apBackBuffers[i].Reset();
-                m_auFrameFenceValues[i] = m_auFrameFenceValues[m_uCurrentBackBufferIndex];
+                //m_auFrameFenceValues[i] = m_auFrameFenceValues[m_uCurrentBackBufferIndex];
             }
 
             DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
@@ -520,6 +658,92 @@ namespace pr
         }
 
         return bAllowsTearing;
+    }
+
+    HRESULT Renderer::flush() noexcept
+    {
+        HRESULT hr = S_OK;
+        hr = m_pDirectCommandQueue->Flush();
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::flush >> Direct command queue flush");
+        hr = m_pComputeCommandQueue->Flush();
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::flush >> Compute command queue flush");
+        hr = m_pCopyCommandQueue->Flush();
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::flush >> Copy command queue flush");
+        return hr;
+    }
+
+    D3D12_CPU_DESCRIPTOR_HANDLE Renderer::getCurrentRtv() const noexcept
+    {
+        return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_pRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_uCurrentBackBufferIndex, m_uRtvDescriptorSize);
+    }
+
+    HRESULT Renderer::present(_Out_ UINT& uOutCurrentBackBufferIndex) noexcept
+    {
+        HRESULT hr = S_OK;
+
+        UINT uSyncInterval = m_bIsVSyncEnabled ? 1 : 0;
+        UINT uPresentFlags = m_bIsTearingSupported && !m_bIsVSyncEnabled ? DXGI_PRESENT_ALLOW_TEARING : 0;
+        hr = m_pSwapChain->Present(uSyncInterval, uPresentFlags);
+        m_uCurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+        uOutCurrentBackBufferIndex = m_uCurrentBackBufferIndex;
+
+        return hr;
+    }
+
+    HRESULT Renderer::resizeDepthBuffer(UINT uWidth, UINT uHeight) noexcept
+    {
+        HRESULT hr = S_OK;
+
+        hr = flush();
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::resizeDepthBuffer >> flush");
+
+        if (uWidth == 0 && uHeight == 0)
+        {
+            hr = E_INVALIDARG;
+            CHECK_AND_RETURN_HRESULT(hr, L"Renderer::resizeDepthBuffer >> New size is 0 x 0");
+        }
+
+        // Resize screen dependent resources
+        // Create a depth buffer
+        D3D12_CLEAR_VALUE optimizedClearValue =
+        {
+            .Format = DXGI_FORMAT_D32_FLOAT,
+            .DepthStencil = { .Depth = 1.0f, .Stencil = 0 }
+        };
+            
+        CD3DX12_HEAP_PROPERTIES heapPropertiesDefault(D3D12_HEAP_TYPE_DEFAULT);
+        CD3DX12_RESOURCE_DESC dsvResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+            DXGI_FORMAT_D32_FLOAT,
+            uWidth,
+            uHeight,
+            1,
+            0,
+            1,
+            0,
+            D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
+        );
+
+        hr = m_pDevice->CreateCommittedResource(
+            &heapPropertiesDefault,
+            D3D12_HEAP_FLAG_NONE,
+            &dsvResourceDesc,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &optimizedClearValue,
+            IID_PPV_ARGS(&m_pDepthBuffer)
+        );
+        CHECK_AND_RETURN_HRESULT(hr, L"Renderer::resizeDepthBuffer >> Creating committed resource");
+
+        // Update the depth-stencil view
+        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc =
+        {
+            .Format = DXGI_FORMAT_D32_FLOAT,
+            .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+            .Flags = D3D12_DSV_FLAG_NONE,
+            .Texture2D = {.MipSlice = 0 },
+        };
+        m_pDevice->CreateDepthStencilView(m_pDepthBuffer.Get(), &dsvDesc, m_pDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+        return hr;
     }
 
     void GetHardwareAdapter(_Out_ IDXGIAdapter1** ppAdapter, _In_ IDXGIFactory1* pFactory, _In_ BOOL bRequestHighPerformanceAdapter)

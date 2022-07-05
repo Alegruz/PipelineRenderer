@@ -3,3 +3,9 @@ Build/x64/
 Source/Engine/x64/
 Source/Game/x64/
 Library/Debug/
+Source/Game/Contents/
+Contents/Main/
+Contents/Shaders/
+Contents/Sponza/
+External/Assimp/Binary/
+External/Assimp/Library/

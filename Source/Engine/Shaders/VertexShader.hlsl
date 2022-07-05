@@ -21,23 +21,28 @@ ConstantBuffer<Model> cbModel : register(b2);
 struct InputVertex
 {
 	float3 Position : POSITION;
-	float3 Color : COLOR;
+	float3 Normal : NORMAL;
+    float2 TexCoord : TEXCOORD0;
 };
 
 struct OutputVertex
 {
-	float4 Color : COLOR;
-	float4 Position : SV_Position;
+    float4 Position : SV_Position;
+    float3 Normal : NORMAL;
+    float2 TexCoord : TEXCOORD0;
 };
 
-float4 main(InputVertex Input) : SV_POSITION
+OutputVertex main(InputVertex Input)
 {
 	OutputVertex Output;
 
     Output.Position = mul(cbModel.World, float4(Input.Position, 1.0f));
     Output.Position = mul(cbCamera.View, Output.Position);
     Output.Position = mul(cbDisplay.Projection, Output.Position);
-    Output.Color = Input.Color;
+    
+    Output.TexCoord = Input.TexCoord;
+    
+    Output.Normal = normalize(mul(cbModel.World, float4(Input.Normal, 0.0f)).xyz);
 	
     return Output;
 }
