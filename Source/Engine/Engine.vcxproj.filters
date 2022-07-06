@@ -97,6 +97,9 @@
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\UploadBuffer.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -168,6 +171,15 @@
     <ClInclude Include="Graphics\Model.h">
       <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\UploadBuffer.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Math.h">
+      <Filter>Source Codes\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader\Shader.h">
+      <Filter>Source Codes\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -184,6 +196,15 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\VertexShader.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PSNormal.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VSPCN.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\PSDepth.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

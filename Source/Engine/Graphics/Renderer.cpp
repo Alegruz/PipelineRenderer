@@ -4,6 +4,7 @@
 
 #include "Graphics/CommandQueue.h"
 #include "Graphics/GraphicsCommon.h"
+#include "Shader/Shader.h"
 #include "Utility/Utility.h"
 
 namespace pr
@@ -265,12 +266,12 @@ namespace pr
 
         // Load the vertex shader
         ComPtr<ID3DBlob> pVertexShaderBlob;
-        hr = D3DReadFileToBlob(L"Contents/Shaders/VertexShader.cso", &pVertexShaderBlob);
+        hr = D3DReadFileToBlob((SHADERS_PATH / VS_VERTEX_PCN).c_str(), &pVertexShaderBlob);
         CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Reading vertex shader");
 
         // Load the pixel shader
         ComPtr<ID3DBlob> pPixelShaderBlob;
-        hr = D3DReadFileToBlob(L"Contents/Shaders/PixelShader.cso", &pPixelShaderBlob);
+        hr = D3DReadFileToBlob((SHADERS_PATH / PS_DEPTH).c_str(), &pPixelShaderBlob);
         CHECK_AND_RETURN_HRESULT(hr, L"Renderer::Initialize >> Reading pixel shader");
 
         // Create the vertex input layout

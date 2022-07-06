@@ -136,6 +136,7 @@ xcopy /y /d "$(SolutionDir)..\External\Assimp\Binary\$(Configuration)\assimp-vc1
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Renderable.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
+    <ClCompile Include="Graphics\UploadBuffer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -162,14 +163,17 @@ xcopy /y /d "$(SolutionDir)..\External\Assimp\Binary\$(Configuration)\assimp-vc1
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Renderable.h" />
     <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Graphics\UploadBuffer.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="Shader\Shader.h" />
     <ClInclude Include="Texture\DDSTextureLoader.h" />
     <ClInclude Include="Texture\Material.h" />
     <ClInclude Include="Texture\Texture.h" />
     <ClInclude Include="Texture\WICTextureLoader.h" />
+    <ClInclude Include="Utility\Math.h" />
     <ClInclude Include="Utility\Utility.h" />
     <ClInclude Include="Window\BaseWindow.h" />
     <ClInclude Include="Window\MainWindow.h" />
@@ -185,7 +189,19 @@ xcopy /y /d "$(SolutionDir)..\External\Assimp\Binary\$(Configuration)\assimp-vc1
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="Shaders\PSDepth.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\PSNormal.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\VSPCN.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>

@@ -89,9 +89,36 @@
 
 #include "Resource.h"
 
-constexpr LPCWSTR LPSZ_ENGINE_TITLE = L"Pipeline Renderer";
-constexpr const size_t DEFAULT_WIDTH = 1280;
-constexpr const size_t DEFAULT_HEIGHT = 720;
-
 using namespace Microsoft::WRL;
 using namespace DirectX;
+
+namespace pr
+{
+	const std::filesystem::path CONTENTS_PATH(L"Contents");
+	const std::filesystem::path SHADERS_PATH(CONTENTS_PATH / L"Shaders");
+
+	constexpr LPCWSTR LPSZ_ENGINE_TITLE = L"Pipeline Renderer";
+	constexpr const size_t DEFAULT_WIDTH = 1280;
+	constexpr const size_t DEFAULT_HEIGHT = 720;
+	
+	inline constexpr size_t ConvertKbToBytes(size_t kilobytes)
+	{
+		return kilobytes * 1024;
+	}
+
+	inline constexpr size_t ConvertMbToBytes(size_t megabytes)
+	{
+		return megabytes * 1024 * 1024;
+	}
+
+	constexpr const size_t _64KB = ConvertKbToBytes(64);
+	constexpr const size_t _1MB = ConvertMbToBytes(1);
+	constexpr const size_t _2MB = ConvertMbToBytes(2);
+	constexpr const size_t _4MB = ConvertMbToBytes(4);
+	constexpr const size_t _8MB = ConvertMbToBytes(8);
+	constexpr const size_t _16MB = ConvertMbToBytes(16);
+	constexpr const size_t _32MB = ConvertMbToBytes(32);
+	constexpr const size_t _64MB = ConvertMbToBytes(64);
+	constexpr const size_t _128MB = ConvertMbToBytes(128);
+	constexpr const size_t _256MB = ConvertMbToBytes(256);
+}
