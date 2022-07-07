@@ -58,7 +58,6 @@ namespace pr
 	{
 		HRESULT hr = S_OK;
 
-		pOutPage->Reset();
 		if (!m_AvailablePages.empty())
 		{
 			pOutPage = m_AvailablePages.front();

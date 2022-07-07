@@ -21,8 +21,6 @@
 namespace pr
 {
     // Forward Declarations
-    class MainWindow;
-    //class Renderer;
 
     /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
       Class:    Game
@@ -49,6 +47,9 @@ namespace pr
     class Game final
     {
     public:
+        static UINT64 GetNumFrames() noexcept;
+
+    public:
         explicit Game(_In_ PCWSTR pszGameName) noexcept;
         Game(const Game& other) = delete;
         Game(Game&& other) = delete;
@@ -68,7 +69,7 @@ namespace pr
         std::unique_ptr<MainWindow> m_pMainWindow;          // 8    >>  32
         std::unique_ptr<Renderer> m_pRenderer;              // 8    >>  40
         std::unique_ptr<Scene> m_pScene;                    // 8    >>  48
-        UINT64 m_uNumFrames;                                // 8    >>  56
+        static UINT64 ms_uNumFrames;                                // 8    >>  56
     };
-    static_assert(sizeof(Game) == 56);
+    static_assert(sizeof(Game) == 48);
 }

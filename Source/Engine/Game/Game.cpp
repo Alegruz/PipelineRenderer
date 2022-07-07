@@ -7,6 +7,13 @@
 
 namespace pr
 {
+    UINT64 Game::ms_uNumFrames = 0;
+
+    UINT64 Game::GetNumFrames() noexcept
+    {
+        return ms_uNumFrames;
+    }
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Game::Game
 
@@ -23,7 +30,7 @@ namespace pr
         , m_pMainWindow(std::make_unique<MainWindow>(m_pEventManager))
         , m_pRenderer(std::make_unique<Renderer>())
         , m_pScene(std::make_unique<Scene>())
-        , m_uNumFrames(0u)
+        //, m_uNumFrames(0u)
     {
     }
 
@@ -136,11 +143,11 @@ namespace pr
                     PostQuitMessage(0);
                 }
 
-                ++m_uNumFrames;
+                ++ms_uNumFrames;
                 averageDeltaTime += deltaTime;
             }
         }
-        averageDeltaTime /= m_uNumFrames;
+        averageDeltaTime /= ms_uNumFrames;
         swprintf_s(szDebugMsg, L"Average Delta Time: %lf, Average FPS: %lf\n", averageDeltaTime, 1.0 / averageDeltaTime);
         OutputDebugString(szDebugMsg);
 
