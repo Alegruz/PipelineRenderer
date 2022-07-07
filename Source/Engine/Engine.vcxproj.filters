@@ -100,6 +100,30 @@
     <ClCompile Include="Graphics\UploadBuffer.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\DescriptorAllocator.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DescriptorAllocatorPage.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DescriptorAllocation.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DynamicDescriptorHeap.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RootSignature.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\CommandList.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ResourceStateTracker.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Resource.cpp">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -179,6 +203,33 @@
     </ClInclude>
     <ClInclude Include="Shader\Shader.h">
       <Filter>Source Codes\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DescriptorAllocator.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DescriptorAllocation.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DescriptorAllocatorPage.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DynamicDescriptorHeap.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RootSignature.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\CommandList.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\TextureUsage.h">
+      <Filter>Source Codes\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ResourceStateTracker.h">
+      <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Resource.h">
+      <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
