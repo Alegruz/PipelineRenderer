@@ -41,6 +41,15 @@
     <Filter Include="Source Codes\Texture">
       <UniqueIdentifier>{d8edc6ae-8b5e-4fef-a3ee-fb12d6cfcd53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Codes\Graphics\Buffers">
+      <UniqueIdentifier>{c7705746-8185-4c8d-9d23-568bc4659dfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Graphics\Renderables">
+      <UniqueIdentifier>{404910d7-a54b-41f4-8a6f-8674dc54b93a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Codes\Graphics\Allocators">
+      <UniqueIdentifier>{3039a2fe-ccf0-4f96-9c8d-67c17922e72b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp">
@@ -70,12 +79,6 @@
     <ClCompile Include="Graphics\CommandQueue.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Renderable.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\BaseCube.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\GraphicsCommon.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
@@ -94,24 +97,6 @@
     <ClCompile Include="Texture\WICTextureLoader.cpp">
       <Filter>Source Codes\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\UploadBuffer.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DescriptorAllocator.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DescriptorAllocatorPage.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DescriptorAllocation.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DynamicDescriptorHeap.cpp">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\RootSignature.cpp">
       <Filter>Source Codes\Graphics</Filter>
     </ClCompile>
@@ -123,6 +108,48 @@
     </ClCompile>
     <ClCompile Include="Graphics\Resource.cpp">
       <Filter>Source Codes\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Source Codes\Graphics\Renderables</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Renderable.cpp">
+      <Filter>Source Codes\Graphics\Renderables</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\BaseCube.cpp">
+      <Filter>Source Codes\Graphics\Renderables</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DescriptorAllocation.cpp">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DescriptorAllocator.cpp">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DescriptorAllocatorPage.cpp">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DynamicDescriptorHeap.cpp">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\UploadBuffer.cpp">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Buffer.cpp">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ByteAddressBuffer.cpp">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ConstantBuffer.cpp">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\IndexBuffer.cpp">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\StructuredBuffer.cpp">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\VertexBuffer.cpp">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -168,12 +195,6 @@
     <ClInclude Include="Graphics\CommandQueue.h">
       <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Renderable.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\BaseCube.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\GraphicsCommon.h">
       <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
@@ -192,29 +213,11 @@
     <ClInclude Include="Texture\WICTextureLoader.h">
       <Filter>Source Codes\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Model.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\UploadBuffer.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\Math.h">
       <Filter>Source Codes\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Shader\Shader.h">
       <Filter>Source Codes\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DescriptorAllocator.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DescriptorAllocation.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DescriptorAllocatorPage.h">
-      <Filter>Source Codes\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DynamicDescriptorHeap.h">
-      <Filter>Source Codes\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RootSignature.h">
       <Filter>Source Codes\Graphics</Filter>
@@ -230,6 +233,48 @@
     </ClInclude>
     <ClInclude Include="Graphics\Resource.h">
       <Filter>Source Codes\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Source Codes\Graphics\Renderables</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Renderable.h">
+      <Filter>Source Codes\Graphics\Renderables</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\BaseCube.h">
+      <Filter>Source Codes\Graphics\Renderables</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DescriptorAllocation.h">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DescriptorAllocator.h">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DescriptorAllocatorPage.h">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DynamicDescriptorHeap.h">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\UploadBuffer.h">
+      <Filter>Source Codes\Graphics\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Buffer.h">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ByteAddressBuffer.h">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ConstantBuffer.h">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\IndexBuffer.h">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\StructuredBuffer.h">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexBuffer.h">
+      <Filter>Source Codes\Graphics\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

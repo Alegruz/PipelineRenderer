@@ -26,23 +26,25 @@ namespace pr
 	public:
 		CommandList() = delete;
 		explicit CommandList(_In_ D3D12_COMMAND_LIST_TYPE type) noexcept;
-		explicit CommandList(_In_ const CommandList& other) noexcept;
-		explicit CommandList(_In_ CommandList&& other) noexcept;
-		CommandList& operator=(_In_ const CommandList& other) noexcept;
-		CommandList& operator=(_In_ CommandList&& other) noexcept;
-		virtual ~CommandList() noexcept;
+		explicit CommandList(_In_ const CommandList& other) noexcept = default;
+		explicit CommandList(_In_ CommandList&& other) noexcept = default;
+		CommandList& operator=(_In_ const CommandList& other) noexcept = default;
+		CommandList& operator=(_In_ CommandList&& other) noexcept = default;
+		virtual ~CommandList() noexcept = default;
+
+		HRESULT Initialize(_In_ ID3D12Device2* pDevice) noexcept;
 
 		D3D12_COMMAND_LIST_TYPE GetType() const noexcept;
 		ComPtr<ID3D12GraphicsCommandList2>& GetCommandList() noexcept;
 		const ComPtr<ID3D12GraphicsCommandList2>& GetCommandList() const noexcept;
 
-		void TransitionBarrier(_In_ const Resource& resource, _In_ D3D12_RESOURCE_STATES stateAfter, _In_opt_ UINT uSubresource, _In_opt_ BOOL bFlushBarriers) noexcept;
-		void TransitionBarrier(_In_ const Resource& resource, _In_ D3D12_RESOURCE_STATES stateAfter, _In_opt_ UINT uSubresource) noexcept;
-		void TransitionBarrier(_In_ const Resource& resource, _In_ D3D12_RESOURCE_STATES stateAfter) noexcept;
-		void UavBarrier(_In_ const Resource& resource, _In_opt_ BOOL bFlushBarriers) noexcept;
-		void UavBarrier(_In_ const Resource& resource) noexcept;
-		void AliasingBarrier(const Resource& beforeResource, const Resource& afterResource, BOOL bFlushBarriers) noexcept;
-		void AliasingBarrier(const Resource& beforeResource, const Resource& afterResource) noexcept;
+		void TransitBarrier(_In_ const Resource& resource, _In_ D3D12_RESOURCE_STATES stateAfter, _In_opt_ UINT uSubresource, _In_opt_ BOOL bFlushBarriers) noexcept;
+		void TransitBarrier(_In_ const Resource& resource, _In_ D3D12_RESOURCE_STATES stateAfter, _In_opt_ UINT uSubresource) noexcept;
+		void TransitBarrier(_In_ const Resource& resource, _In_ D3D12_RESOURCE_STATES stateAfter) noexcept;
+		void AddUavBarrier(_In_ const Resource& resource, _In_opt_ BOOL bFlushBarriers) noexcept;
+		void AddUavBarrier(_In_ const Resource& resource) noexcept;
+		void AddAliasingBarrier(const Resource& beforeResource, const Resource& afterResource, BOOL bFlushBarriers) noexcept;
+		void AddAliasingBarrier(const Resource& beforeResource, const Resource& afterResource) noexcept;
 		void FlushResourceBarriers() noexcept;
 		void CopyResource(Resource& dst, const Resource& src) noexcept;
 		void ResolveSubresource(Resource& dst, const Resource& src, UINT uDstSubresource, UINT uSrcSubresource) noexcept;
@@ -63,8 +65,8 @@ namespace pr
 		void CopyStructuredBuffer(StructuredBuffer& structuredBuffer, const std::vector<T>& bufferData) noexcept;
 
 		void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology) noexcept;
-		void LoadTextureFromFile(Texture& texture, const std::wstring& szFileName, eTextureUsage textureUsage) noexcept;
-		void LoadTextureFromFile(Texture& texture, const std::wstring& szFileName) noexcept;
+		HRESULT LoadTextureFromFile(_Out_ Texture& outTexture, _In_ ID3D12Device2* pDevice, _In_ const std::wstring& szFileName, _In_ eTextureUsage textureUsage) noexcept;
+		HRESULT LoadTextureFromFile(_Out_ Texture& outTexture, _In_ ID3D12Device2* pDevice, _In_ const std::wstring& szFileName) noexcept;
 		void ClearTexture(const Texture& texture, const FLOAT clearColor[4]) noexcept;
 		void ClearDepthStencilTexture(const Texture& texture, D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 uStencil) noexcept;
 		void ClearDepthStencilTexture(const Texture& texture, D3D12_CLEAR_FLAGS clearFlags, FLOAT depth) noexcept;
@@ -73,9 +75,9 @@ namespace pr
 		void PanoToCubeMap(Texture& cubeMap, const Texture& pano) noexcept;
 		void CopyTextureSubresource(Texture& texture, UINT uFirstSubresource, UINT uNumSubresource, D3D12_SUBRESOURCE_DATA* pSubresourceData) noexcept;
 
-		void SetGraphicsDynamicConstantBuffer(UINT uRootParameterIndex, size_t sizeInBytes, const void* pBufferData) noexcept;
+		HRESULT SetGraphicsDynamicConstantBuffer(_In_ ID3D12Device2* pDevice, _In_ UINT uRootParameterIndex, _In_ size_t sizeInBytes, _In_ const void* pBufferData) noexcept;
 		template <typename T>
-		void SetGraphicsDynamicConstantBuffer(UINT uRootParameterIndex, const T& data) noexcept;
+		HRESULT SetGraphicsDynamicConstantBuffer(_In_ ID3D12Device2* pDevice, _In_ UINT uRootParameterIndex, _In_ const T& data) noexcept;
 		void SetGraphics32BitConstants(UINT uRootParameterIndex, size_t numConstants, const void* pConstants) noexcept;
 		template <typename T>
 		void SetGraphics32BitConstants(UINT uRootParameterIndex, const T& constants) noexcept;
@@ -183,13 +185,13 @@ namespace pr
 
 		void SetRenderTarget(const RenderTarget& renderTarget) noexcept;
 
-		void Draw(UINT uVertexCount, UINT uInstanceCount, UINT uStartVertex, UINT uStartInstance) noexcept;
-		void Draw(UINT uVertexCount, UINT uInstanceCount, UINT uStartVertex) noexcept;
-		void Draw(UINT uVertexCount, UINT uInstanceCount) noexcept;
-		void Draw(UINT uVertexCount) noexcept;
-		void Dispatch(UINT uNumGroupsX, UINT uNumGroupsY, UINT uNumGroupsZ) noexcept;
-		void Dispatch(UINT uNumGroupsX, UINT uNumGroupsY) noexcept;
-		void Dispatch(UINT uNumGroupsX) noexcept;
+		HRESULT Draw(_In_ ID3D12Device2* pDevice, _In_ UINT uVertexCount, _In_ UINT uInstanceCount, _In_ UINT uStartVertex, _In_ UINT uStartInstance) noexcept;
+		HRESULT Draw(_In_ ID3D12Device2* pDevice, _In_ UINT uVertexCount, _In_ UINT uInstanceCount, _In_ UINT uStartVertex) noexcept;
+		HRESULT Draw(_In_ ID3D12Device2* pDevice, _In_ UINT uVertexCount, _In_ UINT uInstanceCount) noexcept;
+		HRESULT Draw(_In_ ID3D12Device2* pDevice, _In_ UINT uVertexCount) noexcept;
+		void Dispatch(_In_ UINT uNumGroupsX, _In_ UINT uNumGroupsY, _In_ UINT uNumGroupsZ) noexcept;
+		void Dispatch(_In_ UINT uNumGroupsX, _In_ UINT uNumGroupsY) noexcept;
+		void Dispatch(_In_ UINT uNumGroupsX) noexcept;
 
 		BOOL Close(CommandList& pendingCommandList) noexcept;
 		void Close();
@@ -257,9 +259,9 @@ namespace pr
 	}
 
 	template<typename T>
-	inline void CommandList::SetGraphicsDynamicConstantBuffer(UINT uRootParameterIndex, const T& data) noexcept
+	inline HRESULT CommandList::SetGraphicsDynamicConstantBuffer(_In_ ID3D12Device2* pDevice, UINT uRootParameterIndex, const T& data) noexcept
 	{
-		SetGraphicsDynamicConstantBuffer(uRootParameterIndex, sizeof(T), &data);
+		return SetGraphicsDynamicConstantBuffer(pDevice, uRootParameterIndex, sizeof(T), &data);
 	}
 
 	template<typename T>
